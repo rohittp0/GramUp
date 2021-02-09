@@ -74,8 +74,6 @@ def showResults(done,failed,errors) :
 	print(f"{failed} files failed to upload")
 	print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") 
 	
-	tg.send_message(chat_id=chat_id, text=f"Backup ended on {datetime.today().strftime('%Y-%m-%d %I:%M %p')}");
-	
 	if failed > 0 and input("Do you wan't to see the error log (y/N) ? : ").lower() == "y" :
 		print(errors) 
 	
@@ -116,6 +114,8 @@ def backup(tg,chat_id,back_up_folders):
 			failed += 1
 			errors += str(task.error_info) + "\n\n"
 		utils.printProgressBar(done+failed, total_files, prefix = 'Uploading:', suffix = 'Complete', autosize = True)
+	
+	tg.send_message(chat_id=chat_id, text=f"Backup ended on {datetime.today().strftime('%Y-%m-%d %I:%M %p')}");
 		
 	showResults(done,failed,errors)		   
 	tg.idle()
