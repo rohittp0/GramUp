@@ -19,13 +19,13 @@ import os
 from telegram.client import Telegram
 from telegram.client import AuthorizationState
 try:
-	import constants
+	from constants import DATA_FILE,FILES_DIR,API_ID,API_HASH,DATABASE_ENCRYPTION_KEY
 except:
-	from .constants import *
+	from .constants import DATA_FILE,FILES_DIR,API_ID,API_HASH,DATABASE_ENCRYPTION_KEY
 		
 def loadData():	 
 	try:
-		with open(constants.DATA_FILE, "rb") as dbfile:	
+		with open(DATA_FILE, "rb") as dbfile:	
 			db = pickle.load(dbfile)
 			return (db["phone_number"],db["chat_id"],db["back_up_folders"]) 
 			
@@ -36,11 +36,11 @@ def loadData():
 		
 		if not chat_id.isnumeric() : chat_id = None
 		
-		os.makedirs(os.path.dirname(constants.DATA_FILE), exist_ok=True)
-		os.makedirs(os.path.dirname(constants.FILES_DIR), exist_ok=True)
+		os.makedirs(os.path.dirname(DATA_FILE), exist_ok=True)
+		os.makedirs(os.path.dirname(FILES_DIR), exist_ok=True)
 		
-		with open(constants.DATA_FILE, "wb") as dbfile:
-			data = { "phone_number": phone_number, "chat_id": chat_id, "back_up_folders": bup_folders }
+		with open(DATA_FILE, "wb") as dbfile:
+			data = { "phone_number": ph_no, "chat_id": chat_id, "back_up_folders": bup_folders }
 			pickle.dump(data, dbfile)
 		
 		return (ph_no,chat_id,bup_folders)
@@ -50,10 +50,10 @@ def login(call_back):
 	(ph_no,chat_id,bup_folders) = loadData()
 	
 	tg = Telegram(
-			api_id=constants.API_ID,
-			api_hash=constants.API_HASH,
-			files_directory=constants.FILES_DIR,
-			database_encryption_key=constants.DATABASE_ENCRYPTION_KEY,
+			api_id=API_ID,
+			api_hash=API_HASH,
+			files_directory=FILES_DIR,
+			database_encryption_key=DATABASE_ENCRYPTION_KEY,
 			tdlib_verbosity=0,
 			phone=ph_no
 		)
@@ -70,12 +70,12 @@ def login(call_back):
 	tg.get_chats().wait()	
 	
 	if chat_id == None :
-		def messageHandler(update) :	 	
+		def messageHandler(update) :
 			message_content = update['message']['content'].get('text', {})
 			message_text = message_content.get('text', '').lower()
 		
 			if message_text == 'use_this_chat':
-				with open(constants.DATA_FILE, "wb") as dbfile:
+				with open(DATA_FILE, "wb") as dbfile:
 					pickle.dump(
 						{ 
 							"phone_number": ph_no, 

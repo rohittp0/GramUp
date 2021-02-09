@@ -20,9 +20,9 @@ from pathlib import Path
 import speedtest
 import time
 try :
-	import utils
+	from utils import getNewFiles,printProgressBar
 except :
-	from .utils	import *
+	from .utils	import getNewFiles,printProgressBar
 
 def getUploadedFiles(tg,chat_id) :	
 	last_id = 0
@@ -41,7 +41,7 @@ def getUploadedFiles(tg,chat_id) :
 		)
 		
 		messages.wait()
-		if len(messages.update["messages"]) == 0 : break
+		if not messages.update or len(messages.update["messages"]) == 0 : break
 		for message in messages.update["messages"] :
 			if "document" in message["content"] and message["content"]["document"]["document"]["local"]["can_be_downloaded"] :
 				files.add(message["content"]["document"]["document"]["local"]["path"])
@@ -94,7 +94,7 @@ def backup(tg,chat_id,back_up_folders):
 	print("Getting list of files to upload")
 	
 	for folder in back_up_folders :
-		new_files.extend(utils.getNewFiles(folder,old_files))
+		new_files.extend(getNewFiles(folder,old_files))
 	
 	if len(new_files) == 0 : return showResults(0,0,"")	
 		
@@ -103,7 +103,7 @@ def backup(tg,chat_id,back_up_folders):
 	net_speed = speedtest.Speedtest().upload()/8
 	(done,failed,errors) = (0,0,"")
 	
-	utils.printProgressBar(0,total_files, autosize = True)	
+	printProgressBar(0,total_files, autosize = True)	
 	tg.send_message(chat_id=chat_id,text=f"Backup started on {datetime.today().strftime('%Y-%m-%d %I:%M %p')}")
 	tg.send_message(chat_id=chat_id,text=f"\nBacking up {total_files} files @ {net_speed/1000000} MBps.");
 		
@@ -116,9 +116,9 @@ def backup(tg,chat_id,back_up_folders):
 		else :
 			failed += 1
 			errors += str(task.error_info) + "\n\n"
-		utils.printProgressBar(done+failed, total_files, prefix = 'Uploading:', suffix = 'Complete', autosize = True)
+		printProgressBar(done+failed, total_files, prefix = 'Uploading:', suffix = 'Complete', autosize = True)
 	
 	tg.send_message(chat_id=chat_id, text=f"Backup ended on {datetime.today().strftime('%Y-%m-%d %I:%M %p')}");
 		
 	showResults(done,failed,errors)		   
-	tg.idle()
+	if done > 0 : tg.idle()

@@ -43,7 +43,6 @@ def getUploadedFiles(tg,chat_id) :
 		messages.wait()
 		if len(messages.update["messages"]) == 0 : break
 		for message in messages.update["messages"] :
-			print(f"{message}\n\n")
 			if "document" in message["content"] and message["content"]["document"]["document"]["local"]["can_be_downloaded"] :
 				files.append((message["content"]["document"]["document"]["id"],message["content"]["caption"]["text"]))
 			last_id = message["id"]
