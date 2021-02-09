@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
 	name="gramup",
-	version="0.0.3",
+	version="0.0.4",
 	author="Rohit T P",
 	author_email="tprohit9@gmail.com",
 	description="A utility to use Telegram as a backup solution.",
@@ -21,7 +21,7 @@ setuptools.setup(
 	include_package_data=True,
 	install_requires=[ "speedtest-cli", "python-telegram" ],
 	entry_points={
-		"console_scripts": [ "gramup=GramUp.main.main" ]
+		"console_scripts": [ "gramup=GramUp.main:main" ]
 	},
 	python_requires='>=3.6',
 )
