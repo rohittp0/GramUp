@@ -1,4 +1,4 @@
-#    This is a utlity to use Telegram's unlimited storage for backup. 	
+#    This is a utility to use Telegram's unlimited storage for backup. 	
 #    Copyright (C) 2021  Rohit T P
 #
 #    This program is free software: you can redistribute it and/or modify
