@@ -27,7 +27,10 @@ def clientReady(tg,chat_id,bup_folders) :
 		restore(tg,chat_id)
 		
 	print("Invalid option")
+
+def main() :
+	login(clientReady)	
     		    
 if __name__ == "__main__" :
-	login(clientReady)    
+	main()   
 
