@@ -69,7 +69,7 @@ def sendFile(tg,chat_id,file_path,parent_folder="/") :
 		
 def showResults(done,failed,errors) :
 	print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
-	print(f"Total files to upload {total_files}")
+	print(f"Total files to upload {done+failed}")
 	print(f"{done} files uploaded")
 	print(f"{failed} files failed to upload")
 	print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~") 
