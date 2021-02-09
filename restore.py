@@ -1,0 +1,80 @@
+from constants import RE_FOLDER,MESGS_DIR
+from shutil import copyfile,rmtree
+from utils import printProgressBar
+from os.path import join,dirname
+from os import makedirs
+
+def getUploadedFiles(tg,chat_id) :	
+	last_id = 0
+	files = []
+	
+	while True :
+		messages = tg.call_method(
+			"getChatHistory",
+			{
+				"chat_id": chat_id,
+				"offset": 0,
+				"limit": 100,
+				"only_local": False,
+				"from_message_id": last_id
+			}
+		)
+		
+		messages.wait()
+		if len(messages.update["messages"]) == 0 : break
+		for message in messages.update["messages"] :
+			print(f"{message}\n\n")
+			if "document" in message["content"] and message["content"]["document"]["document"]["local"]["can_be_downloaded"] :
+				files.append((message["content"]["document"]["document"]["id"],message["content"]["caption"]["text"]))
+			last_id = message["id"]
+	
+	return files
+	
+def downloadFiles(tg,files) :
+	(restored,failed,total) = (0,0,len(files))
+	errors = ""
+	
+	if total <= 0 : return (restored,failed,errors)
+	
+	printProgressBar(0,total, autosize = True)
+	
+	for (file_id,path) in files :
+		task = tg.call_method("downloadFile",
+			{
+				"file_id": file_id,
+				"priority": 32,
+				"offset": 0,
+				"limit": 0,
+				"synchronous": True
+			}
+		)
+		task.wait()
+		if not path : path = str(file_id)
+		if task.error_info == None :
+			makedirs(dirname(join(RE_FOLDER,path)), exist_ok=True)	
+			copyfile(task.update["local"]["path"],join(RE_FOLDER,path))
+			restored += 1
+		else : 
+			errors += str(task.error_info) + "\n"
+			failed += 1
+		printProgressBar(restored+failed, total, prefix = 'Restoring:', suffix = 'Complete', autosize = True)
+		
+	return (restored,failed,errors)				   
+
+def restore(tg,chat_id) :
+	print("\nGetting file list")
+	files = getUploadedFiles(tg,chat_id)
+	
+	print(f"Restoring {len(files)} files\n")
+	(restored,failed,errors) = downloadFiles(tg,files)
+	
+	print("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+	print(f"{restored} files restored to ~/Restored")
+	print(f"{failed} failed \n")
+	print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+	
+	rmtree(MESGS_DIR)
+	
+	if failed > 0 and input("Do you wan't to see the error log (y/N) ? : ").lower() == "y" :
+		print(errors)
+			
