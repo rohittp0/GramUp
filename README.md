@@ -14,15 +14,16 @@
 	    * [Contact Me](#contact-me)
 
 ## What is GramUp?
+
 **GramUp** is a lightweight python program to backup your files. **GramUp** enables you unlimited cloud backup and easy restore functionality and that too for free. With **GramUp,** monthly bills for cloud storage will be a thing of the past. 
+
 ##  How does it work?
+
 **GramUp** uses Telegram's unlimited cloud storage for backup. All your files are stored on Telegram servers and secured by their encryption. You can select a chat ( usually saved messages ) to use and **GramUp** will send all files to that chat and later at an event of restoration download files from there. Since both Telegram and **GramUp** are opensource you don't have to worry about someday suddenly you having to pay for your storage.
+
 ##  Key Features
 
- 
-
  - [x]  **Unlimited Storage for Ever**
- 
 	 - Yes forever! That is not until a certain period of time or with a specific cap to the amount of storage you get. It is truly unlimited.
  - [x] **Fully Opensource**
  - [x]  **Works on any OS**
@@ -37,8 +38,8 @@
 	 - **GramUp** can backup and restore any type of file, let it be an image or a zip file **GramUp** can handle without any problem. 
  - [x] **Large File Size Support**
 	 - **GramUp** supports file size of up to 1.5 GB ( will be increased in the next release )
- - [x] **Automatic File Tracking**
-	 - **GramUp** checks the list of files already uploaded and uploads new files only to save you time and resources.
+ - [x] **Resumable Backup and Restore**
+	 - **GramUp** checks the list of files already uploaded/downloaded and uploads/downloads new files only to save you time and resources.
  - [x] **Automatic Chat Identification**
 	 - Just send 'use_this_chat' to any chat and **GramUp** will automatically select that chat for backup.
  - [x] **Easy setup**
@@ -47,9 +48,19 @@
 	 -  The whole program is just 35.7 kB I bet this must be the smallest app you have ever installed.
 
 ## Installation
-**GramUp** currently provides two methods of installation, by cloning this repository or by using pip.
 
-### Method 1 
+**GramUp** currently provides two methods of installation, by using pip or by cloning this repository.
+
+### Method 1
+
+This method always gets you the stable version of **GramUp** and is the recommended method. Install [pip](https://pypi.org/project/pip/) if you don't have it then run :
+
+    pip install gramup
+And that is it!
+
+### Method 2 
+
+This method ensures that you get the latest version ( even if it is unstable ).
 The steps shown are for Linux but can be easily replicated on other OS too, just google "cloning GitHub repository from \<your OS\> "
 
 Run the following commands from a terminal :
@@ -61,24 +72,23 @@ Run the following commands from a terminal :
 
 To run **GramUp** again open GramuUp/run.sh
 
-### Method 2
-This method always gets you the stable version of **GramUp** and is the recommended method. Install [pip](https://pypi.org/project/pip/) if you don't have it then run :
-
-    pip install gramup
-And that is it!
 
 ## Usage
+
 ### Windows
+
 To start the program run,
 
      py -m gramup
 
  1. Then enter your phone number and list of folders you want to backup.
- 2.  Now you will receive a code on your phone ( on Telegram ) enter that and press enter. 
+ 2. Now you will receive a code on your phone ( on Telegram ) enter that and press enter. 
  3. Now send "use_this_chat" to the Telegram chat you want to use for backup.
  4. Enter "b" for backup or "r" for retore.
  5. Now you can go out a have some fun while **GramUp** handles your task.
- ### Linux or MacOS
+ 
+### Linux or MacOS
+ 
  The process is the same for you guys too. To start you can either run,
  
 
@@ -89,6 +99,10 @@ To start the program run,
     gramup
 
    The rest is the same as that for Windows
+
+### Adroid/iOS
+
+ Currently **GramUp** doesn't support automatic backup and restore on Android/iOS. You could backup files manually by sending them to the chat you selected for backup ( must be sent as document ) with the path to where you want it restored as the caption.  
 
 ## Questions and Feedback
 
