@@ -14,9 +14,10 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see https://www.gnu.org/licenses/
 
+from os.path import relpath,basename
 from datetime import datetime
-from os.path import relpath
 from pathlib import Path
+from math import ceil
 import speedtest
 import time
 try :
@@ -24,9 +25,10 @@ try :
 except :
 	from .utils	import getNewFiles,printProgressBar
 
-def getUploadedFiles(tg,chat_id) :	
+def getUploadedFiles(tg,chat_id,parents) :	
 	last_id = 0
 	files = set([])
+	table = [(basename(parent),parent) for parent in parents ] 
 	
 	while True :
 		messages = tg.call_method(
@@ -43,8 +45,12 @@ def getUploadedFiles(tg,chat_id) :
 		messages.wait()
 		if not messages.update or len(messages.update["messages"]) == 0 : break
 		for message in messages.update["messages"] :
-			if "document" in message["content"] and message["content"]["document"]["document"]["local"]["can_be_downloaded"] :
-				files.add(message["content"]["document"]["document"]["local"]["path"])
+			cnt = message["content"]
+			if "document" in cnt and cnt["document"]["document"]["remote"]["is_uploading_completed"]:
+				if cnt["caption"]["text"] :
+					for (base,full) in table :
+						if cnt["caption"]["text"].startswith(base) :
+							files.add(cnt["caption"]["text"].replace(base,full,1))
 			last_id = message["id"]
 	
 	return files
@@ -69,6 +75,16 @@ def sendFile(tg,chat_id,file_path,parent_folder="/") :
 			}
 		}
 		return tg.call_method("sendMessage",param)
+
+def waitForUpload(tg,msg,net_speed) :
+	while msg and msg["sending_state"]["@type"] == "messageSendingStatePending" :
+		left = msg["content"]["document"]["document"]["size"] - msg["content"]["document"]["document"]["remote"]["uploaded_size"]
+		time.sleep(ceil(left/net_speed))
+		task = tg.call_method("getMessage",{"chat_id":msg["chat_id"],"message_id":msg["id"]})
+		task.wait()
+		msg = task.update
+		
+				
 		
 def showResults(done,failed,errors) :
 	print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -80,21 +96,19 @@ def showResults(done,failed,errors) :
 	if failed > 0 and input("Do you wan't to see the error log (y/N) ? : ").lower() == "y" :
 		print(errors) 
 	
-	print("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
-	print("Press crtl+c once you recive all files\n\n") 
-	print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
-	
 	return None	
 		
 def backup(tg,chat_id,back_up_folders):
 	print("\nGetting list of uploaded files")
-	old_files = getUploadedFiles(tg,chat_id)
+	old_files = getUploadedFiles(tg,chat_id,back_up_folders)
 	
 	new_files = []
 	print("Getting list of files to upload")
 	
 	for folder in back_up_folders :
 		new_files.extend(getNewFiles(folder,old_files))
+	
+	return print(new_files)
 	
 	if len(new_files) == 0 : return showResults(0,0,"")	
 		
@@ -111,14 +125,13 @@ def backup(tg,chat_id,back_up_folders):
 		task = sendFile(tg,chat_id,new_file,folder)
 		task.wait();
 		if(task.error_info == None ) : 
-			time.sleep(task.update["content"]["document"]["document"]["size"]/net_speed)   
+			waitForUpload(tg,task.update,net_speed)
 			done += 1
 		else :
 			failed += 1
 			errors += str(task.error_info) + "\n\n"
 		printProgressBar(done+failed, total_files, prefix = 'Uploading:', suffix = 'Complete', autosize = True)
 	
-	tg.send_message(chat_id=chat_id, text=f"Backup ended on {datetime.today().strftime('%Y-%m-%d %I:%M %p')}");
+	tg.send_message(chat_id=chat_id, text=f"Backup ended on {datetime.today().strftime('%Y-%m-%d %I:%M %p')}").wait();
 		
 	showResults(done,failed,errors)		   
-	if done > 0 : tg.idle()

@@ -10,7 +10,6 @@ with open("README.md", "r", encoding="utf-8") as fh:
 with open(join(package_name, '__init__.py'),"r") as init_py :
     version = match("__version__ = ['\"]([^'\"]+)['\"]", init_py.read()).group(1)
     
-
 setup(
 	name=package_name,
 	version=version,
