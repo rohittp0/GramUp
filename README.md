@@ -1,4 +1,18 @@
+
 # GramUp
+
+  1. [What is GramUp?](#what-is-gramup-)
+  2. [How does it work?](#how-does-it-work-)
+  3. [Key Features](#key-features)
+  4. [Installation](#installation)
+		* [Method 1](#method-1)
+	    * [Method 2](#method-2)
+  5. [Usage](#usage)
+	    * [Windows](#windows)
+	    * [Linux or MacOS](#linux-or-macos)
+  6. [Questions and Feedback](#questions-and-feedback)
+	    * [Contact Me](#contact-me)
+
 ## What is GramUp?
 **GramUp** is a lightweight python program to backup your files. **GramUp** enables you unlimited cloud backup and easy restore functionality and that too for free. With **GramUp,** monthly bills for cloud storage will be a thing of the past. 
 ##  How does it work?
@@ -89,3 +103,7 @@ If you are facing any problem feel free to open an issue or mail me a stack over
 **Check out my YouTube**  [Channel](https://www.youtube.com/channel/UCVRdZwluF8jYXSIaHBqK73w)
 
 **Follow me on**  [Instagram](https://www.instagram.com/rohit_pnr/)
+
+     
+
+ 
