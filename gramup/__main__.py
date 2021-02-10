@@ -32,8 +32,8 @@ def clientReady(tg,chat_id,bup_folders) :
 		backup(tg,chat_id,bup_folders)
 	elif choise == "r" :
 		restore(tg,chat_id)
-		
-	print("Invalid option")
+	else :
+		print("Invalid option")
 
 def main() :
 	banner = [

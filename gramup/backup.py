@@ -108,8 +108,6 @@ def backup(tg,chat_id,back_up_folders):
 	for folder in back_up_folders :
 		new_files.extend(getNewFiles(folder,old_files))
 	
-	return print(new_files)
-	
 	if len(new_files) == 0 : return showResults(0,0,"")	
 		
 	print("Measuring internet speed")	
