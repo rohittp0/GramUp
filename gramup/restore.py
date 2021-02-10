@@ -15,7 +15,7 @@
 #    along with this program.  If not, see https://www.gnu.org/licenses/
 
 from shutil import copyfile,rmtree
-from os.path import join,dirname
+from os.path import join,dirname,isfile
 from os import makedirs
 try :
 	from constants import RE_FOLDER,MESGS_DIR
@@ -58,6 +58,12 @@ def downloadFiles(tg,files) :
 	printProgressBar(0,total, autosize = True)
 	
 	for (file_id,path) in files :
+		
+		if isfile(join(RE_FOLDER,path)) : 
+			restored+=1
+			printProgressBar(restored+failed, total, prefix = 'Restoring:', suffix = 'Complete', autosize = True)
+			continue
+			
 		task = tg.call_method("downloadFile",
 			{
 				"file_id": file_id,
