@@ -14,8 +14,8 @@
 #    You should have received a copy of the GNU Affero General Public License
 #    along with this program.  If not, see https://www.gnu.org/licenses/
 
+from os.path import relpath,basename
 from datetime import datetime
-from os.path import relpath
 from pathlib import Path
 from math import ceil
 import speedtest
@@ -25,9 +25,10 @@ try :
 except :
 	from .utils	import getNewFiles,printProgressBar
 
-def getUploadedFiles(tg,chat_id) :	
+def getUploadedFiles(tg,chat_id,parents) :	
 	last_id = 0
 	files = set([])
+	table = [(basename(parent),parent) for parent in parents ] 
 	
 	while True :
 		messages = tg.call_method(
@@ -44,8 +45,12 @@ def getUploadedFiles(tg,chat_id) :
 		messages.wait()
 		if not messages.update or len(messages.update["messages"]) == 0 : break
 		for message in messages.update["messages"] :
-			if "document" in message["content"] and message["content"]["document"]["document"]["local"]["can_be_downloaded"] :
-				files.add(message["content"]["document"]["document"]["local"]["path"])
+			cnt = message["content"]
+			if "document" in cnt and cnt["document"]["document"]["remote"]["is_uploading_completed"]:
+				if cnt["caption"]["text"] :
+					for (base,full) in table :
+						if cnt["caption"]["text"].startswith(base) :
+							files.add(cnt["caption"]["text"].replace(base,full,1))
 			last_id = message["id"]
 	
 	return files
@@ -95,13 +100,15 @@ def showResults(done,failed,errors) :
 		
 def backup(tg,chat_id,back_up_folders):
 	print("\nGetting list of uploaded files")
-	old_files = getUploadedFiles(tg,chat_id)
+	old_files = getUploadedFiles(tg,chat_id,back_up_folders)
 	
 	new_files = []
 	print("Getting list of files to upload")
 	
 	for folder in back_up_folders :
 		new_files.extend(getNewFiles(folder,old_files))
+	
+	return print(new_files)
 	
 	if len(new_files) == 0 : return showResults(0,0,"")	
 		
