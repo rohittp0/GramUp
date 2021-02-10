@@ -17,6 +17,7 @@
 from datetime import datetime
 from os.path import relpath
 from pathlib import Path
+from math import ceil
 import speedtest
 import time
 try :
@@ -69,6 +70,16 @@ def sendFile(tg,chat_id,file_path,parent_folder="/") :
 			}
 		}
 		return tg.call_method("sendMessage",param)
+
+def waitForUpload(tg,msg,net_speed) :
+	while msg and msg["sending_state"]["@type"] == "messageSendingStatePending" :
+		left = msg["content"]["document"]["document"]["size"] - msg["content"]["document"]["document"]["remote"]["uploaded_size"]
+		time.sleep(ceil(left/net_speed))
+		task = tg.call_method("getMessage",{"chat_id":msg["chat_id"],"message_id":msg["id"]})
+		task.wait()
+		msg = task.update
+		
+				
 		
 def showResults(done,failed,errors) :
 	print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
@@ -79,10 +90,6 @@ def showResults(done,failed,errors) :
 	
 	if failed > 0 and input("Do you wan't to see the error log (y/N) ? : ").lower() == "y" :
 		print(errors) 
-	
-	print("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
-	print("Press crtl+c once you recive all files\n\n") 
-	print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n\n")
 	
 	return None	
 		
@@ -111,14 +118,13 @@ def backup(tg,chat_id,back_up_folders):
 		task = sendFile(tg,chat_id,new_file,folder)
 		task.wait();
 		if(task.error_info == None ) : 
-			time.sleep(task.update["content"]["document"]["document"]["size"]/net_speed)   
+			waitForUpload(tg,task.update,net_speed)
 			done += 1
 		else :
 			failed += 1
 			errors += str(task.error_info) + "\n\n"
 		printProgressBar(done+failed, total_files, prefix = 'Uploading:', suffix = 'Complete', autosize = True)
 	
-	tg.send_message(chat_id=chat_id, text=f"Backup ended on {datetime.today().strftime('%Y-%m-%d %I:%M %p')}");
+	tg.send_message(chat_id=chat_id, text=f"Backup ended on {datetime.today().strftime('%Y-%m-%d %I:%M %p')}").wait();
 		
 	showResults(done,failed,errors)		   
-	if done > 0 : tg.idle()
