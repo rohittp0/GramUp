@@ -1,70 +1,65 @@
-#    This is a utility to use Telegram's unlimited storage for backup. 	
-#    Copyright (C) 2021  Rohit T P
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published
-#    by the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see https://www.gnu.org/licenses/
+'''
+    This is a utility to use Telegram's unlimited storage for backup.
+    Copyright (C) 2021  Rohit T P
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see https://www.gnu.org/licenses/
+'''
 
 from shutil import copyfile,rmtree
 from os.path import join,dirname,isfile
 from os import makedirs
 try :
 	from constants import RE_FOLDER,MESGS_DIR
-	from utils import printProgressBar
-except :
+	from utils import print_progress_bar,get_messages
+except ImportError :
 	from .constants import RE_FOLDER,MESGS_DIR
-	from .utils import printProgressBar	
-	
-def getUploadedFiles(tg,chat_id) :	
-	last_id = 0
+	from .utils import print_progress_bar,get_messages
+
+def get_uploaded_files(tg_client,chat_id) :
+	'''
+		This function gets the list of files that have been
+		already uploaded to given chat and returns a list of
+		File IDs and captions.
+	'''
 	files = []
-	
-	while True :
-		messages = tg.call_method(
-			"getChatHistory",
-			{
-				"chat_id": chat_id,
-				"offset": 0,
-				"limit": 100,
-				"only_local": False,
-				"from_message_id": last_id
-			}
-		)
-		
-		messages.wait()
-		if len(messages.update["messages"]) == 0 : break
-		for message in messages.update["messages"] :
-			if "document" in message["content"] and message["content"]["document"]["document"]["local"]["can_be_downloaded"] :
-				files.append((message["content"]["document"]["document"]["id"],message["content"]["caption"]["text"]))
-			last_id = message["id"]
-	
+
+	for (doc_id,caption) in get_messages(tg_client,chat_id) :
+		files.append((doc_id,caption))
+
 	return files
-	
-def downloadFiles(tg,files) :
+
+def download_files(tg_client,files) :
+	'''
+		This function downloads and moves files to the
+		appropriate directories in RE_FOLDER
+	'''
 	(restored,failed,total) = (0,0,len(files))
 	errors = ""
-	
-	if total <= 0 : return (restored,failed,errors)
-	
-	printProgressBar(0,total, autosize = True)
-	
+
+	if total <= 0 :
+		return (0,0,"")
+
+	print_progress_bar(0,total, autosize = True)
+
 	for (file_id,path) in files :
-		
-		if isfile(join(RE_FOLDER,path)) : 
+
+		if isfile(join(RE_FOLDER,path)) :
 			restored+=1
-			printProgressBar(restored+failed, total, prefix = 'Restoring:', suffix = 'Complete', autosize = True)
+			print_progress_bar(restored+failed, total, prefix = 'Restoring:', suffix = 'Complete', autosize = True)
 			continue
-			
-		task = tg.call_method("downloadFile",
+
+		task = tg_client.call_method("downloadFile",
 			{
 				"file_id": file_id,
 				"priority": 32,
@@ -73,33 +68,38 @@ def downloadFiles(tg,files) :
 				"synchronous": True
 			}
 		)
+
 		task.wait()
-		if not path : path = str(file_id)
-		if task.error_info == None :
-			makedirs(dirname(join(RE_FOLDER,path)), exist_ok=True)	
+		if not path :
+			path = str(file_id)
+
+		if task.error_info is None :
+			makedirs(dirname(join(RE_FOLDER,path)), exist_ok=True)
 			copyfile(task.update["local"]["path"],join(RE_FOLDER,path))
 			restored += 1
-		else : 
+		else :
 			errors += str(task.error_info) + "\n"
 			failed += 1
-		printProgressBar(restored+failed, total, prefix = 'Restoring:', suffix = 'Complete', autosize = True)
-		
-	return (restored,failed,errors)				   
+		print_progress_bar(restored+failed, total, prefix = 'Restoring:', suffix = 'Complete', autosize = True)
 
-def restore(tg,chat_id) :
+	return (restored,failed,errors)
+
+def restore(tg_client_client,chat_id) :
+	'''
+		This function starts the restore process.
+	'''
 	print("\nGetting file list")
-	files = getUploadedFiles(tg,chat_id)
-	
+	files = get_uploaded_files(tg_client_client,chat_id)
+
 	print(f"Restoring {len(files)} files\n")
-	(restored,failed,errors) = downloadFiles(tg,files)
-	
+	(restored,failed,errors) = download_files(tg_client_client,files)
+
 	print("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 	print(f"{restored} files restored to ~/Restored")
 	print(f"{failed} failed \n")
 	print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
-	
+
 	rmtree(MESGS_DIR)
-	
+
 	if failed > 0 and input("Do you wan't to see the error log (y/N) ? : ").lower() == "y" :
 		print(errors)
-			
