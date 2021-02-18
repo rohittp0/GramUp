@@ -50,13 +50,13 @@ def download_files(tg_client,files) :
 	if total <= 0 :
 		return (0,0,"")
 
-	print_progress_bar(0,total, autosize = True)
+	print_progress_bar(0,total)
 
 	for (file_id,path) in files :
 
 		if isfile(join(RE_FOLDER,path)) :
 			restored+=1
-			print_progress_bar(restored+failed, total, prefix = 'Restoring:', suffix = 'Complete', autosize = True)
+			print_progress_bar(restored+failed, total, prefix = 'Restoring:', suffix = 'Complete')
 			continue
 
 		task = tg_client.call_method("downloadFile",
@@ -80,7 +80,7 @@ def download_files(tg_client,files) :
 		else :
 			errors += str(task.error_info) + "\n"
 			failed += 1
-		print_progress_bar(restored+failed, total, prefix = 'Restoring:', suffix = 'Complete', autosize = True)
+		print_progress_bar(restored+failed, total, prefix = 'Restoring:', suffix = 'Complete')
 
 	return (restored,failed,errors)
 

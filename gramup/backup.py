@@ -76,14 +76,21 @@ def wait_for_upload(tg_client,msg,net_speed) :
 		file has finished uploading.
 	'''
 	state = msg["sending_state"]["@type"]
+	doc = msg["content"]["document"]["document"]
 
-	while msg and state == "messageSendingStatePending" :
-		left = msg["size"] - msg["remote"]["uploaded_size"]
+	while doc and state == "messageSendingStatePending" :
+		left = doc["size"] - doc["remote"]["uploaded_size"]
 		time.sleep(ceil(left/net_speed))
+
 		task = tg_client.call_method("getMessage",{"chat_id":msg["chat_id"],"message_id":msg["id"]})
 		task.wait()
-		msg = task.update["content"]["document"]["document"]
-		state = task.update["sending_state"]["@type"]
+		
+		if not task.error_info is None or not task.update:
+			break
+
+		msg = task.update
+		doc = msg["content"]["document"]["document"]
+		state = msg["sending_state"]["@type"]
 
 def show_results(done,failed,errors) :
 	'''
@@ -119,7 +126,7 @@ def backup(tg_client,chat_id,back_up_folders):
 	net_speed = speedtest.Speedtest().upload()/8
 	(done,failed,errors) = (0,0,"")
 
-	print_progress_bar(0,total_files, autosize = True)
+	print_progress_bar(0,total_files)
 	tg_client.send_message(chat_id=chat_id,text=f"Backup started on {datetime.today().strftime('%Y-%m-%d %I:%M %p')}")
 	tg_client.send_message(chat_id=chat_id,text=f"\nBacking up {total_files} files @ {net_speed/1000000} MBps.")
 
@@ -132,7 +139,7 @@ def backup(tg_client,chat_id,back_up_folders):
 		else :
 			failed += 1
 			errors += str(task.error_info) + "\n\n"
-		print_progress_bar(done+failed, total_files, prefix = 'Uploading:', suffix = 'Complete', autosize = True)
+		print_progress_bar(done+failed, total_files, prefix = 'Uploading:', suffix = 'Complete')
 
 	tg_client.send_message(chat_id=chat_id, text=f"Backup ended on {datetime.today().strftime('%Y-%m-%d %I:%M %p')}").wait()
 

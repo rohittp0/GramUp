@@ -38,18 +38,22 @@ def get_messages(tg_client,chat_id) :
 		)
 
 		messages.wait()
-		if not "messages" in messages.update or not len(messages.update["messages"]) > 0  :
-			break
+		try :
+			if messages.error_info : print(messages.error_info)
+			if not messages.update["messages"] or not len(messages.update["messages"]) > 0  :
+				break
 
-		for message in messages.update["messages"] :
-			if "document" in message["content"] :
-				if message["content"]["document"]["document"]["remote"]["is_uploading_completed"] :
-					yield (
-						message["content"]["document"]["document"]["local"]["id"],
-						message["content"]["caption"]["text"]
-					)
+			for message in messages.update["messages"] :
+				if "document" in message["content"] :
+					if message["content"]["document"]["document"]["local"]["can_be_downloaded"] :
+						yield (
+							message["content"]["document"]["document"]["id"],
+							message["content"]["caption"]["text"]
+						)
 
-		last_id = messages.update["messages"][-1]["id"]
+			last_id = messages.update["messages"][-1]["id"]
+		except TypeError :
+			None
 
 def get_new_files(root,old_files) :
 	'''
