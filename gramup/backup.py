@@ -84,7 +84,7 @@ def wait_for_upload(tg_client,msg,net_speed) :
 
 		task = tg_client.call_method("getMessage",{"chat_id":msg["chat_id"],"message_id":msg["id"]})
 		task.wait()
-		
+
 		if not task.error_info is None or not task.update:
 			break
 

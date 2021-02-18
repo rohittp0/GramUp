@@ -77,7 +77,7 @@ def login(call_back):
 		},
 	)
 
-	for i in range(5) :
+	for _ in range(5) :
 		try :
 			tg_client.login()
 			break
@@ -103,11 +103,11 @@ def login(call_back):
 					chat_id=update['message']['chat_id'],
 					text='Chat selected for backup.'
 				)
-				
+
 				call_back(tg_client,update['message']['chat_id'],bup_folders)
 		tg_client.add_message_handler(message_handler)
 		print("Send 'use_this_chat' to the chat you wan't to use for backup (case insensitive)")
 		tg_client.idle()  # blocking waiting for CTRL+C
-	
+
 	tg_client.get_chats().wait()
 	call_back(tg_client,chat_id,bup_folders)

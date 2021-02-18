@@ -15,7 +15,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see https://www.gnu.org/licenses/
 '''
-from sys import exit
+import sys
 from shutil import get_terminal_size
 from pathlib import Path
 
@@ -57,7 +57,7 @@ def get_messages(tg_client,chat_id) :
 			errors += 1
 			if errors > 10 :
 				print("Too many errors. Try again later.")
-				exit(errors)
+				sys.exit()(errors)
 
 def get_new_files(root,old_files) :
 	'''
