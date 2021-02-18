@@ -15,7 +15,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see https://www.gnu.org/licenses/
 '''
-
+from sys import exit
 from shutil import get_terminal_size
 from pathlib import Path
 
@@ -24,7 +24,7 @@ def get_messages(tg_client,chat_id) :
 		This function gets all messages from a chat.
 	'''
 	last_id = 0
-
+	errors = 0
 	while True :
 		messages = tg_client.call_method(
 			"getChatHistory",
@@ -39,7 +39,6 @@ def get_messages(tg_client,chat_id) :
 
 		messages.wait()
 		try :
-			if messages.error_info : print(messages.error_info)
 			if not messages.update["messages"] or not len(messages.update["messages"]) > 0  :
 				break
 
@@ -52,8 +51,13 @@ def get_messages(tg_client,chat_id) :
 						)
 
 			last_id = messages.update["messages"][-1]["id"]
+			errors = 0
+
 		except TypeError :
-			None
+			errors += 1
+			if errors > 10 :
+				print("Too many errors. Try again later.")
+				exit(errors)
 
 def get_new_files(root,old_files) :
 	'''

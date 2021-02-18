@@ -17,6 +17,7 @@
 '''
 
 try:
+	from sys import exit
 	from login import login
 	from backup import backup
 	from restore import restore
@@ -32,6 +33,8 @@ def client_ready(tg_client,chat_id,bup_folders) :
 		This function is called once required data is
 		loaded and Telegram client is initalised.
 	'''
+	if not ( tg_client or chat_id or bup_folders ) :
+		exit(3)
 	choise = input("Backup (b) or Restore (r) ? : ")
 
 	if choise == "b" :
@@ -40,6 +43,8 @@ def client_ready(tg_client,chat_id,bup_folders) :
 		restore(tg_client,chat_id)
 	else :
 		print("Invalid option")
+	
+	exit(0)
 
 def main() :
 	'''

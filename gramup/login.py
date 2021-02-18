@@ -77,8 +77,12 @@ def login(call_back):
 		},
 	)
 
-	tg_client.login()
-	tg_client.get_chats().wait()
+	for i in range(5) :
+		try :
+			tg_client.login()
+			break
+		except RuntimeError :
+			print("Enter the code sent to you from Telegram")
 
 	if chat_id is None :
 		def message_handler(update) :
@@ -95,15 +99,15 @@ def login(call_back):
 						},
 						dbfile
 					)
-
 				tg_client.send_message(
-					chat_id=chat_id,
-					text='Chat selected for backup. \nIf this was not the first time then restart app.'
+					chat_id=update['message']['chat_id'],
+					text='Chat selected for backup.'
 				)
-
-				call_back(tg_client,chat_id,bup_folders)
+				
+				call_back(tg_client,update['message']['chat_id'],bup_folders)
 		tg_client.add_message_handler(message_handler)
 		print("Send 'use_this_chat' to the chat you wan't to use for backup (case insensitive)")
 		tg_client.idle()  # blocking waiting for CTRL+C
-
+	
+	tg_client.get_chats().wait()
 	call_back(tg_client,chat_id,bup_folders)
