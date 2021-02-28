@@ -28,6 +28,10 @@ with open("README.md", "r", encoding="utf-8") as fh:
 with open(join(PACKAGE_NAME, '__init__.py'),"r") as init_py :
 	version = match("__version__ = ['\"]([^'\"]+)['\"]", init_py.read()).group(1)
 
+with open("requirements.txt","r") as f:
+	requires = f.read().splitlines()
+
+
 setup(
 	name=PACKAGE_NAME,
 	version=version,
@@ -47,6 +51,6 @@ setup(
 		"console_scripts": [ "gramup=gramup.__main__:main" ]
 	},
 	include_package_data=True,
-	install_requires=[ "speedtest-cli", "python-telegram" ],
+	install_requires=requires,
 	python_requires='>=3.6',
 )

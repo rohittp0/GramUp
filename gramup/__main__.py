@@ -20,11 +20,13 @@ try:
 	import sys
 	from login import login
 	from backup import backup
+	from search import search
 	from restore import restore
 	from __init__ import __version__
 except ImportError:
 	from .login import login
 	from .backup import backup
+	from .search import search
 	from .restore import restore
 	from .__init__ import __version__
 
@@ -35,16 +37,25 @@ def client_ready(tg_client,chat_id,bup_folders) :
 	'''
 	if not ( tg_client or chat_id or bup_folders ) :
 		sys.exit()(3)
-	choise = input("Backup (b) or Restore (r) ? : ")
 
-	if choise == "b" :
-		backup(tg_client,chat_id,bup_folders)
-	elif choise == "r" :
-		restore(tg_client,chat_id)
-	else :
-		print("Invalid option")
+	choise = None
 
-	sys.exit()(0)
+	while choise != "q" :
+
+		print("\n======= Menu =======")
+		print("  (b) Backup\n  (r) Restore\n  (s) Search\n  (q) Quit\n")
+		choise = input("Select an option : ").lower()
+
+		if choise == "b" :
+			backup(tg_client,chat_id,bup_folders)
+		elif choise == "r" :
+			restore(tg_client,chat_id)
+		elif choise == "s" :
+			search(tg_client,chat_id)
+		elif choise != "q" :
+			print("Invalid option")
+
+	sys.exit(0)
 
 def main() :
 	'''

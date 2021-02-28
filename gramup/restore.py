@@ -21,10 +21,10 @@ from os.path import join,dirname,isfile
 from os import makedirs
 try :
 	from constants import RE_FOLDER,MESGS_DIR
-	from utils import print_progress_bar,get_messages
+	from utils import print_progress_bar,get_messages,download_file
 except ImportError :
 	from .constants import RE_FOLDER,MESGS_DIR
-	from .utils import print_progress_bar,get_messages
+	from .utils import print_progress_bar,get_messages,download_file
 
 def get_uploaded_files(tg_client,chat_id) :
 	'''
@@ -34,7 +34,7 @@ def get_uploaded_files(tg_client,chat_id) :
 	'''
 	files = []
 
-	for (doc_id,caption) in get_messages(tg_client,chat_id) :
+	for (_,doc_id,caption) in get_messages(tg_client,chat_id) :
 		files.append((doc_id,caption))
 
 	return files
@@ -59,17 +59,8 @@ def download_files(tg_client,files) :
 			print_progress_bar(restored+failed, total, prefix = 'Restoring:', suffix = 'Complete')
 			continue
 
-		task = tg_client.call_method("downloadFile",
-			{
-				"file_id": file_id,
-				"priority": 32,
-				"offset": 0,
-				"limit": 0,
-				"synchronous": True
-			}
-		)
+		task = download_file(tg_client,file_id)
 
-		task.wait()
 		if not path :
 			path = str(file_id)
 

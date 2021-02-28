@@ -19,6 +19,23 @@ import sys
 from shutil import get_terminal_size
 from pathlib import Path
 
+def download_file(tg_client,file_id) :
+	'''
+		This function downloads the file with given file id.
+	'''
+	task = tg_client.call_method("downloadFile",
+			{
+				"file_id": file_id,
+				"priority": 32,
+				"offset": 0,
+				"limit": 0,
+				"synchronous": True
+			}
+		)
+	task.wait()
+
+	return task
+
 def get_messages(tg_client,chat_id) :
 	'''
 		This function gets all messages from a chat.
@@ -46,6 +63,7 @@ def get_messages(tg_client,chat_id) :
 				if "document" in message["content"] :
 					if message["content"]["document"]["document"]["local"]["can_be_downloaded"] :
 						yield (
+							message["id"],
 							message["content"]["document"]["document"]["id"],
 							message["content"]["caption"]["text"]
 						)

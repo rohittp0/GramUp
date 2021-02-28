@@ -35,7 +35,7 @@ def get_uploaded_files(tg_client,chat_id,parents) :
 	files = set([])
 	table = [(basename(parent),parent) for parent in parents ]
 
-	for (_,caption) in get_messages(tg_client,chat_id) :
+	for (_,_,caption) in get_messages(tg_client,chat_id) :
 		if caption :
 			for (base,full) in table :
 				if caption.startswith(base) :
