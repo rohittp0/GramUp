@@ -90,7 +90,7 @@ def search(tg_client,chat_id) :
 	else :
 		while True :
 			try :
-				option = input("View (v) Delete (d) : ").lower()
+				option = input("View (v) Delete (d) Go Back (b) : ").lower()
 
 				if option == "v" :
 					c_file = files[int(input("Enter index of file to open : ")) - 1]
@@ -104,6 +104,9 @@ def search(tg_client,chat_id) :
 					else :
 						delete_files(tg_client,chat_id,[ files[ int(i) -1 ] for i in indexes ])
 					break
+				if option == "b" :
+					break
+
 				print("Invalid option")
 
 			except ValueError :
