@@ -1,8 +1,2 @@
 speedtest-cli
 python-telegram
-pickle
-os
-shutil
-datetime
-time
-pathlib
