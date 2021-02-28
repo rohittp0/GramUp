@@ -15,7 +15,6 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see https://www.gnu.org/licenses/
 '''
-
 from os.path import relpath,basename
 from datetime import datetime
 from math import ceil
@@ -50,7 +49,8 @@ def send_file(tg_client,chat_id,file_path,parent_folder="/") :
 		chat_id with path to that file relative to parent_folder
 		as the caption.
 	'''
-	param= {
+	task = tg_client.call_method("sendMessage",
+	{
 		'chat_id': chat_id,
 		'input_message_content': {
 			'@type':'inputMessageDocument',
@@ -67,8 +67,10 @@ def send_file(tg_client,chat_id,file_path,parent_folder="/") :
 		'@extra': {
 			'path': file_path
 		}
-	}
-	return tg_client.call_method("sendMessage",param)
+	})
+	task.wait()
+
+	return task
 
 def wait_for_upload(tg_client,msg,net_speed) :
 	'''
@@ -132,7 +134,6 @@ def backup(tg_client,chat_id,back_up_folders):
 
 	for (new_file,folder) in new_files :
 		task = send_file(tg_client,chat_id,new_file,folder)
-		task.wait()
 		if task.error_info is None :
 			wait_for_upload(tg_client,task.update,net_speed)
 			done += 1

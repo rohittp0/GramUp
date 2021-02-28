@@ -39,22 +39,23 @@ def client_ready(tg_client,chat_id,bup_folders) :
 		sys.exit()(3)
 
 	choise = None
+	try:
+		while choise != "q" :
 
-	while choise != "q" :
+			print("\n======= Menu =======")
+			print("  (b) Backup\n  (r) Restore\n  (s) Search\n  (q) Quit\n")
+			choise = input("Select an option : ").lower()
 
-		print("\n======= Menu =======")
-		print("  (b) Backup\n  (r) Restore\n  (s) Search\n  (q) Quit\n")
-		choise = input("Select an option : ").lower()
-
-		if choise == "b" :
-			backup(tg_client,chat_id,bup_folders)
-		elif choise == "r" :
-			restore(tg_client,chat_id)
-		elif choise == "s" :
-			search(tg_client,chat_id)
-		elif choise != "q" :
-			print("Invalid option")
-
+			if choise == "b" :
+				backup(tg_client,chat_id,bup_folders)
+			elif choise == "r" :
+				restore(tg_client,chat_id)
+			elif choise == "s" :
+				search(tg_client,chat_id)
+			elif choise != "q" :
+				print("Invalid option")
+	except KeyboardInterrupt :
+		print("\n\nExiting...")
 	sys.exit(0)
 
 def main() :

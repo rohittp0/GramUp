@@ -34,3 +34,4 @@ MESGS_DIR=join(expanduser("~"),".gramup/messages/files")
 DATA_FILE=join(expanduser("~"),".gramup/saved")
 CACHE_FILE=join(expanduser("~"),".gramup/cache")
 RE_FOLDER=join(expanduser("~"),"Restored/")
+OTHER_FOLDER="Other/"

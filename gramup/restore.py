@@ -20,30 +20,18 @@ from shutil import copyfile,rmtree
 from os.path import join,dirname,isfile
 from os import makedirs
 try :
-	from constants import RE_FOLDER,MESGS_DIR
+	from constants import RE_FOLDER,MESGS_DIR,OTHER_FOLDER
 	from utils import print_progress_bar,get_messages,download_file
 except ImportError :
-	from .constants import RE_FOLDER,MESGS_DIR
+	from .constants import RE_FOLDER,MESGS_DIR,OTHER_FOLDER
 	from .utils import print_progress_bar,get_messages,download_file
 
-def get_uploaded_files(tg_client,chat_id) :
-	'''
-		This function gets the list of files that have been
-		already uploaded to given chat and returns a list of
-		File IDs and captions.
-	'''
-	files = []
-
-	for (_,doc_id,caption) in get_messages(tg_client,chat_id) :
-		files.append((doc_id,caption))
-
-	return files
-
-def download_files(tg_client,files) :
+def download_files(tg_client,chat_id) :
 	'''
 		This function downloads and moves files to the
 		appropriate directories in RE_FOLDER
 	'''
+	files = get_messages(tg_client,chat_id)
 	(restored,failed,total) = (0,0,len(files))
 	errors = ""
 
@@ -52,7 +40,7 @@ def download_files(tg_client,files) :
 
 	print_progress_bar(0,total)
 
-	for (file_id,path) in files :
+	for (_,file_id,path) in files :
 
 		if isfile(join(RE_FOLDER,path)) :
 			restored+=1
@@ -61,8 +49,8 @@ def download_files(tg_client,files) :
 
 		task = download_file(tg_client,file_id)
 
-		if not path :
-			path = str(file_id)
+		if not ( path and dirname(path) ):
+			path = join(OTHER_FOLDER,str(file_id))
 
 		if task.error_info is None :
 			makedirs(dirname(join(RE_FOLDER,path)), exist_ok=True)
@@ -79,11 +67,8 @@ def restore(tg_client_client,chat_id) :
 	'''
 		This function starts the restore process.
 	'''
-	print("\nGetting file list")
-	files = get_uploaded_files(tg_client_client,chat_id)
-
-	print(f"Restoring {len(files)} files\n")
-	(restored,failed,errors) = download_files(tg_client_client,files)
+	print("Restoring files\nPress ctrl+c to save progress and stop.\n")
+	(restored,failed,errors) = download_files(tg_client_client,chat_id)
 
 	print("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 	print(f"{restored} files restored to ~/Restored")
