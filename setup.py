@@ -15,18 +15,13 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see https://www.gnu.org/licenses/
 '''
-
-from os.path import join
-from re import match
 from setuptools import setup
+from gramup.__init__ import VERSION
 
 PACKAGE_NAME = "gramup"
 
 with open("README.md", "r", encoding="utf-8") as fh:
 	long_description = fh.read()
-
-with open(join(PACKAGE_NAME, '__init__.py'),"r") as init_py :
-	version = match("__version__ = ['\"]([^'\"]+)['\"]", init_py.read()).group(1)
 
 with open("requirements.txt","r") as f:
 	requires = f.read().splitlines()
@@ -34,7 +29,7 @@ with open("requirements.txt","r") as f:
 
 setup(
 	name=PACKAGE_NAME,
-	version=version,
+	version=VERSION,
 	author="Rohit T P",
 	author_email="tprohit9@gmail.com",
 	description="A utility to use Telegram as a backup solution.",
