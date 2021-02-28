@@ -28,7 +28,7 @@ except ImportError:
 	from .backup import backup
 	from .search import search
 	from .restore import restore
-	from .__init__ import __version__
+	from .__init__ import VERSION
 
 def client_ready(tg_client,chat_id,bup_folders) :
 	'''
@@ -64,7 +64,7 @@ def main() :
 	'''
 	banner = [
 		"\n\n"
-		f"   █████████                                      █████  █████  v{__version__}",
+		f"   █████████                                      █████  █████  v{VERSION}",
 		"  ███░░░░░███                                    ░░███  ░░███",
 		" ███     ░░░  ████████   ██████   █████████████   ░███   ░███  ████████",
 		"░███         ░░███░░███ ░░░░░███ ░░███░░███░░███  ░███   ░███ ░░███░░███",
