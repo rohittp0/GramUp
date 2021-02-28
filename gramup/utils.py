@@ -16,8 +16,13 @@
     along with this program.  If not, see https://www.gnu.org/licenses/
 '''
 import sys
+import pickle
 from shutil import get_terminal_size
 from pathlib import Path
+try:
+	from constants import CACHE_FILE
+except ImportError:
+	from .constants import CACHE_FILE
 
 def download_file(tg_client,file_id) :
 	'''
@@ -40,8 +45,17 @@ def get_messages(tg_client,chat_id) :
 	'''
 		This function gets all messages from a chat.
 	'''
-	last_id = 0
 	errors = 0
+
+	try:
+		with open(CACHE_FILE, "rb") as dbfile:
+			all_messages = pickle.load(dbfile)
+			(last_id,_,_) = all_messages[-1]
+
+	except FileNotFoundError :
+		all_messages = []
+		last_id = 0
+
 	while True :
 		messages = tg_client.call_method(
 			"getChatHistory",
@@ -62,11 +76,11 @@ def get_messages(tg_client,chat_id) :
 			for message in messages.update["messages"] :
 				if "document" in message["content"] :
 					if message["content"]["document"]["document"]["local"]["can_be_downloaded"] :
-						yield (
+						all_messages.append((
 							message["id"],
 							message["content"]["document"]["document"]["id"],
 							message["content"]["caption"]["text"]
-						)
+						))
 
 			last_id = messages.update["messages"][-1]["id"]
 			errors = 0
@@ -76,6 +90,11 @@ def get_messages(tg_client,chat_id) :
 			if errors > 10 :
 				print("Too many errors. Try again later.")
 				sys.exit()(errors)
+
+	with open(CACHE_FILE, "wb") as dbfile:
+		pickle.dump(all_messages, dbfile)
+
+	return all_messages
 
 def get_new_files(root,old_files) :
 	'''
