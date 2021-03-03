@@ -29,9 +29,9 @@ DATABASE_ENCRYPTION_KEY="".join([
 	"0NsZRPsmoqVwMbMu7mStFai6aIhc3nSlv8kg9qv1m6XHVQY3PnEw+QQtqS",
 	"IXklHwIDAQAB"
 ])
-FILES_DIR=join(expanduser("~"),".gramup/messages/")
-MESGS_DIR=join(expanduser("~"),".gramup/messages/files")
-DATA_FILE=join(expanduser("~"),".gramup/saved")
-CACHE_FILE=join(expanduser("~"),".gramup/cache")
-RE_FOLDER=join(expanduser("~"),"Restored/")
-OTHER_FOLDER="Other/"
+FILES_DIR=join(expanduser("~"),".gramup","messages")
+MESGS_DIR=join(FILES_DIR,"files")
+DATA_FILE=join(expanduser("~"),".gramup","saved")
+CACHE_FILE=join(expanduser("~"),".gramup","cache")
+RE_FOLDER=join(expanduser("~"),"Restored")
+OTHER_FOLDER="Other"
