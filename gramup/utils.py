@@ -17,12 +17,22 @@
 '''
 import sys
 import pickle
+from os import system
 from shutil import get_terminal_size
 from pathlib import Path
 try:
 	from constants import CACHE_FILE
+	from __init__ import BANNER
 except ImportError:
 	from .constants import CACHE_FILE
+	from .__init__ import BANNER
+
+def print_banner() :
+	'''
+		This function prints the GramUp banner.
+	'''
+	system('cls||clear')
+	print(BANNER)
 
 def download_file(tg_client,file_id) :
 	'''
@@ -89,7 +99,7 @@ def get_messages(tg_client,chat_id) :
 			errors += 1
 			if errors > 10 :
 				print("Too many errors. Try again later.")
-				sys.exit()(errors)
+				sys.exit(errors)
 
 	with open(CACHE_FILE, "wb") as dbfile:
 		pickle.dump(all_messages, dbfile)
