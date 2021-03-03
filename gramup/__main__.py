@@ -18,17 +18,18 @@
 
 try:
 	import sys
+	from enquiries import choose
 	from login import login
 	from backup import backup
 	from search import search
 	from restore import restore
-	from __init__ import __version__
+	from utils import print_banner
 except ImportError:
 	from .login import login
 	from .backup import backup
 	from .search import search
 	from .restore import restore
-	from .__init__ import VERSION
+	from .utils import print_banner
 
 def client_ready(tg_client,chat_id,bup_folders) :
 	'''
@@ -36,49 +37,34 @@ def client_ready(tg_client,chat_id,bup_folders) :
 		loaded and Telegram client is initalised.
 	'''
 	if not ( tg_client or chat_id or bup_folders ) :
-		sys.exit()(3)
+		sys.exit(3)
 
-	choise = None
+	options = ["Backup", "Restore", "Search", "Quit"]
+
 	try:
-		while choise != "q" :
+		while True :
+			print_banner()
+			choise = choose("What do you want to do?", options)
 
-			print("\n======= Menu =======")
-			print("  (b) Backup\n  (r) Restore\n  (s) Search\n  (q) Quit\n")
-			choise = input("Select an option : ").lower()
-
-			if choise == "b" :
+			if choise == options[0] :
 				backup(tg_client,chat_id,bup_folders)
-			elif choise == "r" :
+			elif choise == options[1] :
 				restore(tg_client,chat_id)
-			elif choise == "s" :
+			elif choise == options[2] :
 				search(tg_client,chat_id)
-			elif choise != "q" :
-				print("Invalid option")
+			else :
+				break
+
 	except KeyboardInterrupt :
+		print_banner()
 		print("\n\nExiting...")
+
 	sys.exit(0)
 
 def main() :
 	'''
 		This function is called to start GramUp.
 	'''
-	banner = [
-		"\n\n"
-		f"   █████████                                      █████  █████  v{VERSION}",
-		"  ███░░░░░███                                    ░░███  ░░███",
-		" ███     ░░░  ████████   ██████   █████████████   ░███   ░███  ████████",
-		"░███         ░░███░░███ ░░░░░███ ░░███░░███░░███  ░███   ░███ ░░███░░███",
-		"░███    █████ ░███ ░░░   ███████  ░███ ░███ ░███  ░███   ░███  ░███ ░███",
-		"░░███  ░░███  ░███      ███░░███  ░███ ░███ ░███  ░███   ░███  ░███ ░███",
-		" ░░█████████  █████    ░░████████ █████░███ █████ ░░████████   ░███████",
-		"  ░░░░░░░░░  ░░░░░      ░░░░░░░░ ░░░░░ ░░░ ░░░░░   ░░░░░░░░    ░███░░░",
-		"                                                               ░███",
-		"                          KEEP YOUR FILES SAFE                 █████",
-		"                                                              ░░░░░\n\n"
-	]
-	for line in banner :
-		print(line)
-
 	login(client_ready)
 
 if __name__ == "__main__" :
