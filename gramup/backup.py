@@ -19,7 +19,6 @@ from os.path import relpath,basename
 from datetime import datetime
 from math import ceil
 import time
-from enquiries import freetext
 import speedtest
 try :
 	from utils import get_new_files,get_messages,print_progress_bar,get_logger
@@ -108,7 +107,7 @@ def show_results(done,failed,errors) :
 	if failed > 0 and input("Do you wan't to see the error log (y/N) ? : ").lower() == "y" :
 		print(errors)
 
-	freetext("Press enter to continue.")
+	input("Press enter to continue.")
 
 def backup(tg_client,chat_id,back_up_folders):
 	'''

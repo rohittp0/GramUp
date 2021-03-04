@@ -19,6 +19,7 @@
 import pickle
 import os
 from telegram.client import Telegram
+from enquiries import freetext
 try:
 	from constants import DATA_FILE,FILES_DIR,API_ID,API_HASH,DATABASE_ENCRYPTION_KEY
 except ImportError:
@@ -36,9 +37,9 @@ def load_data():
 			return (db_dict["phone_number"],db_dict["chat_id"],db_dict["back_up_folders"])
 
 	except FileNotFoundError :
-		ph_no = input("Enter your phone number with country code: ")
-		bup_folders = set(input("Enter path to folders to be backedup ( seperated by ',' ): ").split(","))
-		chat_id = input("Enter the chat ID to be used for backup (leave blank if you are unsure): ")
+		ph_no = freetext("Enter your phone number with country code: ")
+		bup_folders = set(freetext("Enter path to folders to be backedup ( seperated by ',' ): ").split(","))
+		chat_id = freetext("Enter the chat ID to be used for backup (leave blank if you are unsure): ")
 
 		if not chat_id.isnumeric() :
 			chat_id = None
