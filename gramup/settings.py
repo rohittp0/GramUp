@@ -21,9 +21,11 @@ from pathlib import Path
 from shutil import rmtree
 from enquiries import choose,confirm,freetext
 try :
-	from constants import MESGS_DIR,CACHE_FILE,DATA_FILE
+	from utils import get_logger
+	from constants import MESGS_DIR,CACHE_FILE,DATA_FILE,GRAMUP_DIR
 except ImportError :
-	from .constants import MESGS_DIR,CACHE_FILE,DATA_FILE
+	from .utils import get_logger
+	from .constants import MESGS_DIR,CACHE_FILE,DATA_FILE,GRAMUP_DIR
 
 def clear_cache(_) :
 	'''
@@ -32,18 +34,29 @@ def clear_cache(_) :
 	if not confirm("Are you sure you want to clear all cache?") :
 		return
 
-	rmtree(MESGS_DIR)
-	Path(CACHE_FILE).unlink(missing_ok=True)
+	file_log = get_logger()
+
+	try :
+		rmtree(MESGS_DIR)
+		Path(CACHE_FILE).unlink(missing_ok=True)
+	except FileNotFoundError :
+		file_log.warning("Cache already cleared")
+
+	file_log.info("Cache cleared")
+	freetext("Cache cleared. Press any enter to continue.")
 
 def change_folder(_) :
 	'''
 		This function allows user to change backup folder.
 	'''
+	file_log = get_logger()
+
 	try:
 		with open(DATA_FILE, "rb") as dbfile:
 			db_dict = pickle.load(dbfile)
 
 	except FileNotFoundError :
+		file_log.warning("No backup folders to change")
 		db_dict = {}
 
 	bup_folders = set(freetext("Enter path to folders to be backedup ( seperated by ',' )").split(","))
@@ -52,10 +65,15 @@ def change_folder(_) :
 	with open(DATA_FILE, "wb") as dbfile:
 		pickle.dump(db_dict, dbfile)
 
+	file_log.info("Backup Folders changed.")
+	freetext("Backup Folders changed. Press any enter to continue.")
+
 def logout(tg_client) :
 	'''
 		This function logs the user out.
 	'''
+	file_log = get_logger()
+
 	if not confirm("Are you sure you want to Logout?") :
 		return
 
@@ -63,11 +81,18 @@ def logout(tg_client) :
 	task.wait()
 
 	if task.error_info :
-		print(f"Oops something went wrong\n{task.error_info}")
+		print("Oops something went wrong")
+		file_log.error(task.error_info)
 		return
 
-	rmtree(Path(DATA_FILE).parent)
+	try :
+		rmtree(GRAMUP_DIR)
+	except FileNotFoundError :
+		file_log.warning("Cache already cleared")
+
+	file_log.info("Loged out")
 	freetext("Loged out. Press any enter to exit.")
+
 	sys.exit(0)
 
 def settings(tg_client) :
@@ -77,10 +102,8 @@ def settings(tg_client) :
 	options = ["Clear Cache","Change Backup Folder","Logout","Go-Back"]
 	functions = [ clear_cache, change_folder, logout ]
 
-	while True :
-		choise = choose("What do you want to do?", options)
-
-		if options.index(choise) < len(functions) :
-			functions[options.index(choise)](tg_client)
-		else :
-			break
+	try :
+		while True :
+			functions[ options.index(choose("What do you want to do?", options)) ](tg_client)
+	except IndexError :
+		pass
