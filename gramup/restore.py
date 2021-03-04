@@ -86,3 +86,5 @@ def restore(tg_client_client,chat_id) :
 
 	if failed > 0 and input("Do you wan't to see the error log (y/N) ? : ").lower() == "y" :
 		print(errors)
+
+	input("Press enter to continue.")
