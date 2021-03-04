@@ -82,29 +82,30 @@ def login(call_back):
 			tg_client.login()
 			break
 		except RuntimeError :
-			print("Enter the code sent to you from Telegram")
+			print("Incorrect code or password. Try again.")
 
 	if chat_id is None :
 		def message_handler(update) :
-			message_content = update['message']['content'].get('text', {})
-			message_text = message_content.get('text', '').lower()
 
-			if message_text == 'use_this_chat':
-				with open(DATA_FILE, "wb") as dbfile:
-					pickle.dump(
-						{
-							"phone_number": ph_no,
-							"chat_id": update['message']['chat_id'],
-							"back_up_folders": bup_folders
-						},
-						dbfile
-					)
-				tg_client.send_message(
-					chat_id=update['message']['chat_id'],
-					text='Chat selected for backup.'
+			if update['message']['content'].get('text', {}).get('text', '').lower() != 'use_this_chat':
+				return
+
+			with open(DATA_FILE, "wb") as dbfile:
+				pickle.dump(
+					{
+						"phone_number": ph_no,
+						"chat_id": update['message']['chat_id'],
+						"back_up_folders": bup_folders
+					},
+					dbfile
 				)
+			tg_client.send_message(
+				chat_id=update['message']['chat_id'],
+				text='Chat selected for backup.'
+			)
 
-				call_back(tg_client,update['message']['chat_id'],bup_folders)
+			call_back(tg_client,update['message']['chat_id'],bup_folders)
+
 		tg_client.add_message_handler(message_handler)
 		print("Send 'use_this_chat' to the chat you wan't to use for backup (case insensitive)")
 		tg_client.idle()  # blocking waiting for CTRL+C

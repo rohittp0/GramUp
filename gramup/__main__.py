@@ -24,14 +24,14 @@ try:
 	from search import search
 	from restore import restore
 	from settings import settings
-	from utils import print_banner
+	from utils import print_banner,get_logger
 except ImportError:
 	from .login import login
 	from .backup import backup
 	from .search import search
 	from .restore import restore
 	from .settings import settings
-	from .utils import print_banner
+	from .utils import print_banner,get_logger
 
 def client_ready(tg_client,chat_id,bup_folders) :
 	'''
@@ -40,6 +40,10 @@ def client_ready(tg_client,chat_id,bup_folders) :
 	'''
 	if not ( tg_client or chat_id or bup_folders ) :
 		sys.exit(3)
+
+	file_log = get_logger()
+
+	file_log.info("Client ready.")
 
 	options = ["Backup", "Restore", "Search", "Settings", "Quit"]
 
@@ -61,8 +65,9 @@ def client_ready(tg_client,chat_id,bup_folders) :
 
 	except KeyboardInterrupt :
 		print_banner()
-		print("\n\nExiting...")
+		file_log.warning("Keyboard interrupt recived.")
 
+	file_log.info("End of excecution.")
 	sys.exit(0)
 
 def main() :

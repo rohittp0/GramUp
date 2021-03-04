@@ -17,15 +17,28 @@
 '''
 import sys
 import pickle
+import logging
 from os import system
 from shutil import get_terminal_size
 from pathlib import Path
 try:
-	from constants import CACHE_FILE
+	from constants import CACHE_FILE,LOG_FILE
 	from __init__ import BANNER
 except ImportError:
-	from .constants import CACHE_FILE
+	from .constants import CACHE_FILE,LOG_FILE
 	from .__init__ import BANNER
+
+def get_logger() :
+	'''
+		This enables logging to log file.
+	'''
+	logging.basicConfig(
+		filename=LOG_FILE,
+		level=logging.INFO,
+		format='%(asctime)s %(levelname)s %(name)s %(message)s'
+	)
+
+	return logging.getLogger(__name__)
 
 def print_banner() :
 	'''
@@ -51,20 +64,45 @@ def download_file(tg_client,file_id) :
 
 	return task
 
+def get_file_id(tg_client,chat_id,msg_id) :
+	'''
+		This function gets the file id using message id.
+	'''
+	msg = tg_client.call_method("getMessage",
+		{
+			"chat_id": chat_id,
+			"message_id": msg_id
+		}
+	)
+	msg.wait()
+
+	if msg.error_info :
+		get_logger().error("Error getting file id %s",msg.error_info)
+		return None
+
+	msg = msg.update["content"]
+
+	if "document" in msg and msg["document"]["document"]["local"]["can_be_downloaded"] :
+		return msg["document"]["document"]["id"]
+
+	return None
+
 def get_messages(tg_client,chat_id) :
 	'''
 		This function gets all messages from a chat.
 	'''
 	errors = 0
+	file_log = get_logger()
 
 	try:
 		with open(CACHE_FILE, "rb") as dbfile:
-			all_messages = pickle.load(dbfile)
-			(last_id,_,_) = all_messages[-1]
+			all_messages,last_id = pickle.load(dbfile)
 
-	except (FileNotFoundError,EOFError) :
-		all_messages = []
-		last_id = 0
+		file_log.info("Read %s messages from cache. Last id %s", len(all_messages),last_id)
+
+	except (FileNotFoundError,EOFError) as f_er :
+		( all_messages, last_id ) = ( set([]), 0 )
+		file_log.warning("No cache found %s",f_er)
 
 	while True :
 		messages = tg_client.call_method(
@@ -86,7 +124,7 @@ def get_messages(tg_client,chat_id) :
 			for message in messages.update["messages"] :
 				if "document" in message["content"] :
 					if message["content"]["document"]["document"]["local"]["can_be_downloaded"] :
-						all_messages.append((
+						all_messages.add((
 							message["id"],
 							message["content"]["document"]["document"]["id"],
 							message["content"]["caption"]["text"]
@@ -95,14 +133,18 @@ def get_messages(tg_client,chat_id) :
 			last_id = messages.update["messages"][-1]["id"]
 			errors = 0
 
-		except TypeError :
+		except TypeError as t_er:
 			errors += 1
+			file_log.warning("Error getting messages %s",t_er)
 			if errors > 10 :
 				print("Too many errors. Try again later.")
+				file_log.error("Too many errors %s", messages.error_info)
 				sys.exit(errors)
 
+	file_log.info("Got %s messages in total", len(all_messages))
+
 	with open(CACHE_FILE, "wb") as dbfile:
-		pickle.dump(all_messages, dbfile)
+		pickle.dump(({ (m_id,None,cap_txt) for (m_id,_,cap_txt) in all_messages }, last_id), dbfile)
 
 	return all_messages
 

@@ -26,39 +26,42 @@ from enquiries import choose,freetext
 
 try :
 	from constants import CACHE_FILE
-	from utils import get_messages,download_file
+	from utils import get_messages,download_file,get_logger,get_file_id
 except ImportError :
 	from .constants import CACHE_FILE
-	from .utils	import get_messages,download_file
+	from .utils	import get_messages,download_file,get_logger,get_file_id
 
-def show_file(tg_client,files) :
+def show_file(tg_client,chat_id,files) :
 	'''
 		This function downloads and displays the file
 		with id file_id.
 	'''
-	for (_,file_id,caption) in files :
+	for (msg_id,file_id,caption) in files :
 
-		task = download_file(tg_client,file_id)
+		task = download_file( tg_client,file_id if file_id else get_file_id( tg_client,chat_id,msg_id ) )
 
 		if task.error_info is None :
 			temp_file = join(gettempdir(),basename(caption))
 			move(task.update["local"]["path"],temp_file)
 			webbrowser.open(f"file://{temp_file}", new=2)
 		else :
-			print(f"Oops... Something went wrong.\n{task.error_info}")
+			get_logger().error("Error showing file %s",task.error_info)
+			freetext("Oops... Something went wrong.")
 
 def delete_files(tg_client,chat_id,files) :
 	'''
 		This function deletes the file with id file_id.
 	'''
 	if len(files) == 0 :
-		return
+		return False
+
+	file_log = get_logger()
 
 	question = "\n".join([ f"  {caption_text}" for (_,_,caption_text) in files ])
 	question += "\n\nAre you sure you want to delete these files?"
 
 	if choose(question,["Yes", "No"]) == "No" :
-		return
+		return False
 
 	task = tg_client.call_method("deleteMessages",
 		{
@@ -72,10 +75,27 @@ def delete_files(tg_client,chat_id,files) :
 	task.wait()
 
 	if task.error_info :
-		print(f"Oops... Something went wrong.\n{task.error_info}")
-	else :
-		with open(CACHE_FILE, "wb") as dbfile:
-			pickle.dump(list(set(get_messages(tg_client,chat_id))-set(files)), dbfile)
+		file_log.error("Error showing file %s",task.error_info)
+		freetext("Oops... Something went wrong.")
+		return False
+
+	try:
+		with open(CACHE_FILE, "rb") as dbfile:
+			all_messages,last_id = pickle.load(dbfile)
+
+	except (FileNotFoundError,EOFError) as f_er :
+		all_messages,last_id = (set([]),0)
+		file_log.warning("No cache found %s",f_er)
+
+	messages = all_messages - { (m_id,None,c_txt) for (m_id,_,c_txt) in files }
+	file_log.info("%s messages after deleting from %s messages",len(messages),len(all_messages))
+
+	with open(CACHE_FILE, "wb") as dbfile:
+		pickle.dump((messages,last_id), dbfile)
+
+	freetext("Files deleted.")
+	return True
+
 
 def search(tg_client,chat_id) :
 	'''
@@ -83,6 +103,7 @@ def search(tg_client,chat_id) :
 		RegEx provide by the user.
 	'''
 	search_reg = freetext("Enter the file path to search for ( RegEx supported )")
+	print("Searching...")
 	files = []
 
 	for (msg_id,file_id,caption) in get_messages(tg_client,chat_id) :
@@ -90,8 +111,8 @@ def search(tg_client,chat_id) :
 			if re_search(search_reg,caption) :
 				files.append((msg_id,file_id,caption))
 				print(f"{len(files)}){caption}")
-		except re_error:
-			pass
+		except re_error as re_er:
+			get_logger().warning("Error searching %s",re_er)
 
 	print()
 
@@ -99,6 +120,7 @@ def search(tg_client,chat_id) :
 		return freetext("No files matched your search")
 
 	options = ["View", "Delete", "Go Back"]
+	functions = [ show_file, delete_files ]
 
 	while True :
 		try :
@@ -112,13 +134,11 @@ def search(tg_client,chat_id) :
 				indexes = freetext("Enter indexes of files seperated by ',' or A to select all").split(",")
 				selected = files if indexes[0].lower() == "a" else [ files[ int(i.strip()) -1 ] for i in indexes ]
 
-			if choise == options[0] :
-				show_file(tg_client,selected)
+			if functions[ options.index(choise) ](tg_client,chat_id,selected) :
+				break
 
-			elif choise == options[1] :
-				delete_files(tg_client,chat_id,selected)
-
-		except ( ValueError,IndexError ) :
+		except ( ValueError,IndexError ) as v_er :
+			get_logger().warning("Error reading index %s",v_er)
 			print(f"Please enter number between 1 and {len(files)}")
 
 	return None

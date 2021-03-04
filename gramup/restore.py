@@ -21,10 +21,10 @@ from os.path import join,dirname,isfile
 from os import makedirs
 try :
 	from constants import RE_FOLDER,MESGS_DIR,OTHER_FOLDER
-	from utils import print_progress_bar,get_messages,download_file
+	from utils import print_progress_bar,get_messages,download_file,get_file_id,get_logger
 except ImportError :
 	from .constants import RE_FOLDER,MESGS_DIR,OTHER_FOLDER
-	from .utils import print_progress_bar,get_messages,download_file
+	from .utils import print_progress_bar,get_messages,download_file,get_file_id,get_logger
 
 def download_files(tg_client,chat_id) :
 	'''
@@ -32,22 +32,24 @@ def download_files(tg_client,chat_id) :
 		appropriate directories in RE_FOLDER
 	'''
 	files = get_messages(tg_client,chat_id)
-	(restored,failed,total) = (0,0,len(files))
-	errors = ""
+	restored,failed,total = (0,0,len(files))
+	errors,file_log = "",get_logger()
+
+	file_log.info("%s files to restore",total)
 
 	if total <= 0 :
 		return (0,0,"")
 
 	print_progress_bar(0,total)
 
-	for (_,file_id,path) in files :
+	for (msg_id,file_id,path) in files :
 
 		if isfile(join(RE_FOLDER,path)) :
 			restored+=1
-			print_progress_bar(restored+failed, total, prefix = 'Restoring:', suffix = 'Complete')
+			print_progress_bar(restored+failed, total, prefix = restored+failed, suffix = f" of {total} done")
 			continue
 
-		task = download_file(tg_client,file_id)
+		task = download_file(tg_client,file_id if file_id else get_file_id(tg_client,chat_id,msg_id))
 
 		if not ( path and dirname(path) ):
 			path = join(OTHER_FOLDER,str(file_id))
@@ -57,9 +59,11 @@ def download_files(tg_client,chat_id) :
 			copyfile(task.update["local"]["path"],join(RE_FOLDER,path))
 			restored += 1
 		else :
+			file_log.error("Error restoring file %s",task.error_info)
 			errors += str(task.error_info) + "\n"
 			failed += 1
-		print_progress_bar(restored+failed, total, prefix = 'Restoring:', suffix = 'Complete')
+
+		print_progress_bar(restored+failed, total, prefix = restored+failed, suffix = f" of {total} done")
 
 	return (restored,failed,errors)
 
@@ -75,7 +79,10 @@ def restore(tg_client_client,chat_id) :
 	print(f"{failed} failed \n")
 	print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
 
-	rmtree(MESGS_DIR)
+	try :
+		rmtree(MESGS_DIR)
+	except FileNotFoundError :
+		get_logger().error("Messages directory not found.")
 
 	if failed > 0 and input("Do you wan't to see the error log (y/N) ? : ").lower() == "y" :
 		print(errors)
