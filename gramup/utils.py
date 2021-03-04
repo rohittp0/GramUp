@@ -62,7 +62,7 @@ def get_messages(tg_client,chat_id) :
 			all_messages = pickle.load(dbfile)
 			(last_id,_,_) = all_messages[-1]
 
-	except FileNotFoundError :
+	except (FileNotFoundError,EOFError) :
 		all_messages = []
 		last_id = 0
 
