@@ -18,10 +18,12 @@
 
 import pickle
 import os
+import sys
 from telegram.client import Telegram
 from enquiries import freetext
 try:
 	from utils import get_folders
+	from __init__ import VERSION
 	from constants import DATA_FILE,FILES_DIR,API_ID,API_HASH,DATABASE_ENCRYPTION_KEY
 except ImportError:
 	from .utils import get_folders
@@ -40,6 +42,7 @@ def load_data():
 
 	except FileNotFoundError :
 		ph_no = freetext("Enter your phone number with country code: ")
+		print("Select folders to backup.")
 		bup_folders = get_folders()
 		chat_id = freetext("Enter the chat ID to be used for backup (leave blank if you are unsure): ")
 
@@ -73,24 +76,34 @@ def login(call_back):
 		)
 
 	tg_client.call_method(
-		'setOption',
+		"setTdlibParameters",
 		{
-			'name': 'prefer_ipv6',
-			'value': {'@type': 'optionValueBoolean', 'value': False},
+			"use_file_database": True,
+			"use_chat_info_database": True,
+			"use_message_database": True,
+			"application_version": VERSION
 		},
 	)
 
+	if chat_id is None :
+		print("A code has been sent to you via teleram.")
 	for _ in range(5) :
 		try :
 			tg_client.login()
 			break
-		except RuntimeError :
-			print("Incorrect code or password. Try again.")
+		except RuntimeError as r_er:
+			if "PHONE_NUMBER_INVALID" in str(r_er):
+				print("Invalid Phone number")
+				if os.path.exists(DATA_FILE) :
+					os.remove(DATA_FILE)
+					sys.exit(0)
+
+			print("Incorrect code or password. Try again")
 
 	if chat_id is None :
 		def message_handler(update) :
 
-			if update['message']['content'].get('text', {}).get('text', '').lower() != 'use_this_chat':
+			if update['message']['content'].get('text', {}).get('text', '').lower() != 'use this chat':
 				return
 
 			with open(DATA_FILE, "wb") as dbfile:
@@ -110,7 +123,7 @@ def login(call_back):
 			call_back(tg_client,update['message']['chat_id'],bup_folders)
 
 		tg_client.add_message_handler(message_handler)
-		print("Send 'use_this_chat' to the chat you wan't to use for backup (case insensitive)")
+		print("Send 'use this chat' to the chat you wan't to use for backup (case insensitive)")
 		tg_client.idle()  # blocking waiting for CTRL+C
 
 	tg_client.get_chats().wait()

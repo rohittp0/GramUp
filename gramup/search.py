@@ -15,7 +15,6 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see https://www.gnu.org/licenses/
 '''
-import pickle
 import webbrowser
 from shutil import move
 from re import error as re_error
@@ -25,10 +24,8 @@ from os.path import join,basename
 from enquiries import choose,freetext
 
 try :
-	from constants import CACHE_FILE
 	from utils import get_messages,download_file,get_logger,get_file_id
 except ImportError :
-	from .constants import CACHE_FILE
 	from .utils	import get_messages,download_file,get_logger,get_file_id
 
 def show_file(tg_client,chat_id,files) :
@@ -79,20 +76,6 @@ def delete_files(tg_client,chat_id,files) :
 		freetext("Oops... Something went wrong.")
 		return False
 
-	try:
-		with open(CACHE_FILE, "rb") as dbfile:
-			all_messages,last_id = pickle.load(dbfile)
-
-	except (FileNotFoundError,EOFError) as f_er :
-		all_messages,last_id = (set([]),0)
-		file_log.warning("No cache found %s",f_er)
-
-	messages = all_messages - { (m_id,None,c_txt) for (m_id,_,c_txt) in files }
-	file_log.info("%s messages after deleting from %s messages",len(messages),len(all_messages))
-
-	with open(CACHE_FILE, "wb") as dbfile:
-		pickle.dump((messages,last_id), dbfile)
-
 	freetext("Files deleted.")
 	return True
 
@@ -106,13 +89,13 @@ def search(tg_client,chat_id) :
 	print("Searching...")
 	files = []
 
-	for (msg_id,file_id,caption) in get_messages(tg_client,chat_id) :
-		try :
+	try :
+		for (msg_id,file_id,caption) in get_messages(tg_client,chat_id) :
 			if re_search(search_reg,caption) :
 				files.append((msg_id,file_id,caption))
 				print(f"{len(files)}){caption}")
-		except re_error as re_er:
-			get_logger().warning("Error searching %s",re_er)
+	except re_error as re_er:
+		get_logger().warning("Error searching %s",re_er)
 
 	print()
 
@@ -132,7 +115,7 @@ def search(tg_client,chat_id) :
 				selected = files
 			else :
 				indexes = freetext("Enter indexes of files seperated by ',' or A to select all").split(",")
-				selected = files if indexes[0].lower() == "a" else [ files[ int(i.strip()) -1 ] for i in indexes ]
+				selected = files if indexes[0].lower() == "a" else { files[ int(i.strip()) -1 ] for i in indexes }
 
 			if functions[ options.index(choise) ](tg_client,chat_id,selected) :
 				break

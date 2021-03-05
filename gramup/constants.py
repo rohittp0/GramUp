@@ -34,6 +34,6 @@ RE_FOLDER=join(expanduser("~"),"Restored")
 FILES_DIR=join(GRAMUP_DIR,"messages")
 MESGS_DIR=join(FILES_DIR,"files")
 DATA_FILE=join(GRAMUP_DIR,"saved")
-CACHE_FILE=join(GRAMUP_DIR,"cache")
+CACHE_DIR=join(FILES_DIR,"database")
 LOG_FILE=join(GRAMUP_DIR,"log.txt")
 OTHER_FOLDER="Other"
