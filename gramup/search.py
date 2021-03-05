@@ -16,45 +16,49 @@
     along with this program.  If not, see https://www.gnu.org/licenses/
 '''
 import webbrowser
-from re import match
 from shutil import move
-from os.path import join,basename
+from re import error as re_error
+from re import search as re_search
 from tempfile import gettempdir
-try :
-	from utils import get_messages,download_file
-except ImportError :
-	from .utils	import get_messages,download_file
+from os.path import join,basename
+from enquiries import choose,freetext
 
-def show_file(tg_client,c_file) :
+try :
+	from utils import get_messages,download_file,get_logger,get_file_id
+except ImportError :
+	from .utils	import get_messages,download_file,get_logger,get_file_id
+
+def show_file(tg_client,chat_id,files) :
 	'''
 		This function downloads and displays the file
 		with id file_id.
 	'''
-	(_,file_id,caption) = c_file
-	print(f"Downloading {caption}")
+	for (msg_id,file_id,caption) in files :
 
-	task = download_file(tg_client,file_id)
+		task = download_file( tg_client,file_id if file_id else get_file_id( tg_client,chat_id,msg_id ) )
 
-	if task.error_info is None :
-		temp_file = join(gettempdir(),basename(caption))
-		move(task.update["local"]["path"],temp_file)
-		webbrowser.open(f"file://{temp_file}", new=2)
-	else :
-		print("Oops... Something went wrong.")
+		if task.error_info is None :
+			temp_file = join(gettempdir(),basename(caption))
+			move(task.update["local"]["path"],temp_file)
+			webbrowser.open(f"file://{temp_file}", new=2)
+		else :
+			get_logger().error("Error showing file %s",task.error_info)
+			freetext("Oops... Something went wrong.")
 
 def delete_files(tg_client,chat_id,files) :
 	'''
 		This function deletes the file with id file_id.
 	'''
 	if len(files) == 0 :
-		return
+		return False
 
-	print("Are you sure you want to delete,")
-	for (_,_,caption_text) in files :
-		print(f"  {caption_text}")
+	file_log = get_logger()
 
-	if input("(y/N) ? : ").lower() == "n" :
-		return
+	question = "\n".join([ f"  {caption_text}" for (_,_,caption_text) in files ])
+	question += "\n\nAre you sure you want to delete these files?"
+
+	if choose(question,["Yes", "No"]) == "No" :
+		return False
 
 	task = tg_client.call_method("deleteMessages",
 		{
@@ -68,48 +72,56 @@ def delete_files(tg_client,chat_id,files) :
 	task.wait()
 
 	if task.error_info :
-		print("Something went wrong. Please try again")
+		file_log.error("Error showing file %s",task.error_info)
+		freetext("Oops... Something went wrong.")
+		return False
+
+	freetext("Files deleted.")
+	return True
+
 
 def search(tg_client,chat_id) :
 	'''
 		This function searches for uploaded file using the
 		RegEx provide by the user.
 	'''
-	print("You can use Path(Path to file from where it was uploaded) or RegEx to search.")
-	print("Enter . to show all files")
-	search_reg = input(" : ")
-
+	search_reg = freetext("Enter the file path to search for ( RegEx supported )")
+	print("Searching...")
 	files = []
-	for (msg_id,file_id,caption) in get_messages(tg_client,chat_id) :
-		if match(search_reg,caption) :
-			files.append((msg_id,file_id,caption))
-			print(f"{len(files)}){caption}")
+
+	try :
+		for (msg_id,file_id,caption) in get_messages(tg_client,chat_id) :
+			if re_search(search_reg,caption) :
+				files.append((msg_id,file_id,caption))
+				print(f"{len(files)}){caption}")
+	except re_error as re_er:
+		get_logger().warning("Error searching %s",re_er)
+
+	print()
 
 	if len(files) == 0 :
-		print("No files matched your search")
-	else :
-		while True :
-			try :
-				option = input("View (v) Delete (d) Go Back (b) : ").lower()
+		return freetext("No files matched your search")
 
-				if option == "v" :
-					c_file = files[int(input("Enter index of file to open : ")) - 1]
-					show_file(tg_client,c_file)
-					break
-				if option == "d" :
-					print("Enter indexes of files seperated by ','")
-					indexes = input("Or A (case sensitive) to select all : ").split(",")
-					if indexes[0] == "A" :
-						delete_files(tg_client,chat_id,files)
-					else :
-						delete_files(tg_client,chat_id,[ files[ int(i) -1 ] for i in indexes ])
-					break
-				if option == "b" :
-					break
+	options = ["View", "Delete", "Go Back"]
+	functions = [ show_file, delete_files ]
 
-				print("Invalid option")
+	while True :
+		try :
+			choise = choose("What do you want to do?", options)
+			if choise == options[2] :
+				break
 
-			except ValueError :
-				print("Invalid number")
-			except IndexError :
-				print("Invalid index")
+			if len(files) == 1 :
+				selected = files
+			else :
+				indexes = freetext("Enter indexes of files seperated by ',' or A to select all").split(",")
+				selected = files if indexes[0].lower() == "a" else { files[ int(i.strip()) -1 ] for i in indexes }
+
+			if functions[ options.index(choise) ](tg_client,chat_id,selected) :
+				break
+
+		except ( ValueError,IndexError ) as v_er :
+			get_logger().warning("Error reading index %s",v_er)
+			print(f"Please enter number between 1 and {len(files)}")
+
+	return None

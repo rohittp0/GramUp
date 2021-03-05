@@ -18,10 +18,16 @@
 
 import pickle
 import os
+import sys
 from telegram.client import Telegram
+from enquiries import freetext
 try:
+	from utils import get_folders
+	from __init__ import VERSION
 	from constants import DATA_FILE,FILES_DIR,API_ID,API_HASH,DATABASE_ENCRYPTION_KEY
 except ImportError:
+	from .utils import get_folders
+	from .__init__ import VERSION
 	from .constants import DATA_FILE,FILES_DIR,API_ID,API_HASH,DATABASE_ENCRYPTION_KEY
 
 def load_data():
@@ -36,9 +42,10 @@ def load_data():
 			return (db_dict["phone_number"],db_dict["chat_id"],db_dict["back_up_folders"])
 
 	except FileNotFoundError :
-		ph_no = input("Enter your phone number with country code: ")
-		bup_folders = set(input("Enter path to folders to be backedup ( seperated by ',' ): ").split(","))
-		chat_id = input("Enter the chat ID to be used for backup (leave blank if you are unsure): ")
+		ph_no = freetext("Enter your phone number with country code: ")
+		print("Select folders to backup.")
+		bup_folders = get_folders()
+		chat_id = freetext("Enter the chat ID to be used for backup (leave blank if you are unsure): ")
 
 		if not chat_id.isnumeric() :
 			chat_id = None
@@ -70,43 +77,54 @@ def login(call_back):
 		)
 
 	tg_client.call_method(
-		'setOption',
+		"setTdlibParameters",
 		{
-			'name': 'prefer_ipv6',
-			'value': {'@type': 'optionValueBoolean', 'value': False},
+			"use_file_database": True,
+			"use_chat_info_database": True,
+			"use_message_database": True,
+			"application_version": VERSION
 		},
 	)
 
+	if chat_id is None :
+		print("A code has been sent to you via teleram.")
 	for _ in range(5) :
 		try :
 			tg_client.login()
 			break
-		except RuntimeError :
-			print("Enter the code sent to you from Telegram")
+		except RuntimeError as r_er:
+			if "PHONE_NUMBER_INVALID" in str(r_er):
+				print("Invalid Phone number")
+				if os.path.exists(DATA_FILE) :
+					os.remove(DATA_FILE)
+					sys.exit(0)
+
+			print("Incorrect code or password. Try again")
 
 	if chat_id is None :
 		def message_handler(update) :
-			message_content = update['message']['content'].get('text', {})
-			message_text = message_content.get('text', '').lower()
 
-			if message_text == 'use_this_chat':
-				with open(DATA_FILE, "wb") as dbfile:
-					pickle.dump(
-						{
-							"phone_number": ph_no,
-							"chat_id": update['message']['chat_id'],
-							"back_up_folders": bup_folders
-						},
-						dbfile
-					)
-				tg_client.send_message(
-					chat_id=update['message']['chat_id'],
-					text='Chat selected for backup.'
+			if update['message']['content'].get('text', {}).get('text', '').lower() != 'use this chat':
+				return
+
+			with open(DATA_FILE, "wb") as dbfile:
+				pickle.dump(
+					{
+						"phone_number": ph_no,
+						"chat_id": update['message']['chat_id'],
+						"back_up_folders": bup_folders
+					},
+					dbfile
 				)
+			tg_client.send_message(
+				chat_id=update['message']['chat_id'],
+				text='Chat selected for backup.'
+			)
 
-				call_back(tg_client,update['message']['chat_id'],bup_folders)
+			call_back(tg_client,update['message']['chat_id'],bup_folders)
+
 		tg_client.add_message_handler(message_handler)
-		print("Send 'use_this_chat' to the chat you wan't to use for backup (case insensitive)")
+		print("Send 'use this chat' to the chat you wan't to use for backup (case insensitive)")
 		tg_client.idle()  # blocking waiting for CTRL+C
 
 	tg_client.get_chats().wait()

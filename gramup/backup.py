@@ -15,16 +15,16 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see https://www.gnu.org/licenses/
 '''
+from multiprocessing.pool import ThreadPool
 from os.path import relpath,basename
 from datetime import datetime
 from math import ceil
 import time
 import speedtest
-
 try :
-	from utils import get_new_files,get_messages,print_progress_bar
+	from utils import get_new_files,get_messages,print_progress_bar,get_logger
 except ImportError :
-	from .utils	import get_new_files,get_messages,print_progress_bar
+	from .utils	import get_new_files,get_messages,print_progress_bar,get_logger
 
 def get_uploaded_files(tg_client,chat_id,parents) :
 	'''
@@ -87,7 +87,8 @@ def wait_for_upload(tg_client,msg,net_speed) :
 		task = tg_client.call_method("getMessage",{"chat_id":msg["chat_id"],"message_id":msg["id"]})
 		task.wait()
 
-		if not task.error_info is None or not task.update:
+		if not task.error_info is None or not task.update :
+			get_logger().error("Error waiting for file %s", task.error_info)
 			break
 
 		msg = task.update
@@ -107,12 +108,19 @@ def show_results(done,failed,errors) :
 	if failed > 0 and input("Do you wan't to see the error log (y/N) ? : ").lower() == "y" :
 		print(errors)
 
+	input("Press enter to continue.")
+
 def backup(tg_client,chat_id,back_up_folders):
 	'''
 		This function starts the backup process.
 	'''
+	async_result = ThreadPool(processes=1).apply_async(lambda : speedtest.Speedtest().upload()/8 , ())
+
+	file_log = get_logger()
+
 	print("\nGetting list of uploaded files")
 	old_files = get_uploaded_files(tg_client,chat_id,back_up_folders)
+	file_log.info("Found %s files already uploaded",len(old_files))
 
 	new_files = []
 	print("Getting list of files to upload")
@@ -120,17 +128,20 @@ def backup(tg_client,chat_id,back_up_folders):
 	for folder in back_up_folders :
 		new_files.extend(get_new_files(folder,old_files))
 
+	file_log.info("Found %s new files to upload",len(new_files))
+
 	if len(new_files) == 0 :
 		return show_results(0,0,"")
 
-	print("Measuring internet speed")
 	total_files = len(new_files)
-	net_speed = speedtest.Speedtest().upload()/8
+	net_speed = async_result.get()
 	(done,failed,errors) = (0,0,"")
+
+	file_log.info("Measured internet speed to be %s Bps",net_speed)
 
 	print_progress_bar(0,total_files)
 	tg_client.send_message(chat_id=chat_id,text=f"Backup started on {datetime.today().strftime('%Y-%m-%d %I:%M %p')}")
-	tg_client.send_message(chat_id=chat_id,text=f"\nBacking up {total_files} files @ {net_speed/1000000} MBps.")
+	tg_client.send_message(chat_id=chat_id,text=f"Backing up {total_files} files @ {net_speed/1000000} MBps.")
 
 	for (new_file,folder) in new_files :
 		task = send_file(tg_client,chat_id,new_file,folder)
@@ -140,7 +151,9 @@ def backup(tg_client,chat_id,back_up_folders):
 		else :
 			failed += 1
 			errors += str(task.error_info) + "\n\n"
-		print_progress_bar(done+failed, total_files, prefix = 'Uploading:', suffix = 'Complete')
+			file_log.error("Error uploading %s %s",new_file,task.error_info)
+
+		print_progress_bar(done+failed, total_files, "", suffix = f"{done+failed} of {total_files} done")
 
 	tg_client.send_message(chat_id=chat_id, text=f"Backup ended on {datetime.today().strftime('%Y-%m-%d %I:%M %p')}").wait()
 
