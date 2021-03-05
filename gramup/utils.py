@@ -16,7 +16,6 @@
     along with this program.  If not, see https://www.gnu.org/licenses/
 '''
 import sys
-import pickle
 import logging
 from pathlib import Path
 from os.path import join,isdir
@@ -24,10 +23,10 @@ from os import system,getcwd,listdir
 from shutil import get_terminal_size
 from enquiries import choose,confirm
 try:
-	from constants import CACHE_FILE,LOG_FILE
+	from constants import LOG_FILE
 	from __init__ import BANNER
 except ImportError:
-	from .constants import CACHE_FILE,LOG_FILE
+	from .constants import LOG_FILE
 	from .__init__ import BANNER
 
 def get_folders(c_dir=getcwd(),selected_dirs=None) :
@@ -35,21 +34,23 @@ def get_folders(c_dir=getcwd(),selected_dirs=None) :
 		This function shows a file chooser to select
 		multiple directories.
 	'''
-	selected_dirs = selected_dirs if selected_dirs else []
+	selected_dirs = selected_dirs if selected_dirs else set([])
 
-	dirs = [ item for item in listdir(c_dir) if isdir(join(c_dir, item)) ]
+	dirs = { item for item in listdir(c_dir) if isdir(join(c_dir, item)) }
+	dirs = { item for item in dirs if join(c_dir,item) not in selected_dirs and item[0] != "." }
 
 	options = [ "Select This directory" ]
 	options.extend(dirs)
 	options.append("⬅")
 
-	choise = choose(f"You are in {c_dir}", options)
+	info = f"You have selected : \n {','.join(selected_dirs)} \n" if len(selected_dirs) > 0 else "\n"
+	choise = choose(f"{info}You are in {c_dir}", options)
 
 	if choise == options[0] :
-		selected_dirs.append(c_dir)
+		selected_dirs.add(c_dir)
 
 		if confirm("Do you want to select more folders?") :
-			return get_folders(c_dir,selected_dirs)
+			return get_folders(Path(c_dir).parent,selected_dirs)
 
 		return selected_dirs
 
@@ -122,18 +123,8 @@ def get_messages(tg_client,chat_id) :
 	'''
 		This function gets all messages from a chat.
 	'''
-	errors = 0
+	all_messages, last_id, errors = ( set([]), 0, 0 )
 	file_log = get_logger()
-
-	try:
-		with open(CACHE_FILE, "rb") as dbfile:
-			all_messages,last_id = pickle.load(dbfile)
-
-		file_log.info("Read %s messages from cache. Last id %s", len(all_messages),last_id)
-
-	except (FileNotFoundError,EOFError) as f_er :
-		( all_messages, last_id ) = ( set([]), 0 )
-		file_log.warning("No cache found %s",f_er)
 
 	while True :
 		messages = tg_client.call_method(
@@ -170,12 +161,9 @@ def get_messages(tg_client,chat_id) :
 			if errors > 10 :
 				print("Too many errors. Try again later.")
 				file_log.error("Too many errors %s", messages.error_info)
-				sys.exit(errors)
+				sys.exit(0)
 
 	file_log.info("Got %s messages in total", len(all_messages))
-
-	with open(CACHE_FILE, "wb") as dbfile:
-		pickle.dump(({ (m_id,None,cap_txt) for (m_id,_,cap_txt) in all_messages }, last_id), dbfile)
 
 	return all_messages
 

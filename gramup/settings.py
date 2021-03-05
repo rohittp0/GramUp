@@ -17,15 +17,14 @@
 '''
 import sys
 import pickle
-from pathlib import Path
 from shutil import rmtree
 from enquiries import choose,confirm
 try :
 	from utils import get_logger,get_folders
-	from constants import MESGS_DIR,CACHE_FILE,DATA_FILE,GRAMUP_DIR
+	from constants import CACHE_DIR,DATA_FILE,GRAMUP_DIR
 except ImportError :
 	from .utils import get_logger,get_folders
-	from .constants import MESGS_DIR,CACHE_FILE,DATA_FILE,GRAMUP_DIR
+	from .constants import CACHE_DIR,DATA_FILE,GRAMUP_DIR
 
 def clear_cache(_) :
 	'''
@@ -37,8 +36,7 @@ def clear_cache(_) :
 	file_log = get_logger()
 
 	try :
-		rmtree(MESGS_DIR)
-		Path(CACHE_FILE).unlink(missing_ok=True)
+		rmtree(CACHE_DIR)
 	except FileNotFoundError :
 		file_log.warning("Cache already cleared")
 
@@ -59,6 +57,9 @@ def change_folder(_) :
 		file_log.warning("No backup folders to change")
 		db_dict = {}
 
+	if not confirm(f"Currently {','.join(db_dict['back_up_folders'])} are backedup.Do you want to change this?") :
+		return
+
 	db_dict[ "back_up_folders" ] = get_folders()
 
 	with open(DATA_FILE, "wb") as dbfile:
@@ -66,6 +67,7 @@ def change_folder(_) :
 
 	file_log.info("Backup Folders changed.")
 	input("Backup Folders changed. Press any enter to continue.")
+	sys.exit(0)
 
 def logout(tg_client) :
 	'''
@@ -90,8 +92,7 @@ def logout(tg_client) :
 		file_log.warning("Cache already cleared")
 
 	file_log.info("Loged out")
-	input("Loged out. Press any enter to exit.")
-
+	input("Loged out. Press enter to continue.")
 	sys.exit(0)
 
 def settings(tg_client) :

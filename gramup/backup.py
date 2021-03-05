@@ -15,6 +15,7 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see https://www.gnu.org/licenses/
 '''
+from multiprocessing.pool import ThreadPool
 from os.path import relpath,basename
 from datetime import datetime
 from math import ceil
@@ -113,6 +114,7 @@ def backup(tg_client,chat_id,back_up_folders):
 	'''
 		This function starts the backup process.
 	'''
+	async_result = ThreadPool(processes=1).apply_async(lambda : speedtest.Speedtest().upload()/8 , ())
 
 	file_log = get_logger()
 
@@ -131,9 +133,8 @@ def backup(tg_client,chat_id,back_up_folders):
 	if len(new_files) == 0 :
 		return show_results(0,0,"")
 
-	print("Measuring internet speed")
 	total_files = len(new_files)
-	net_speed = speedtest.Speedtest().upload()/8
+	net_speed = async_result.get()
 	(done,failed,errors) = (0,0,"")
 
 	file_log.info("Measured internet speed to be %s Bps",net_speed)
@@ -152,7 +153,7 @@ def backup(tg_client,chat_id,back_up_folders):
 			errors += str(task.error_info) + "\n\n"
 			file_log.error("Error uploading %s %s",new_file,task.error_info)
 
-		print_progress_bar(done+failed, total_files, prefix = done+failed, suffix = f" of {total_files} done")
+		print_progress_bar(done+failed, total_files, "", suffix = f"{done+failed} of {total_files} done")
 
 	tg_client.send_message(chat_id=chat_id, text=f"Backup ended on {datetime.today().strftime('%Y-%m-%d %I:%M %p')}").wait()
 
