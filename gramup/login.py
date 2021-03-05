@@ -21,8 +21,10 @@ import os
 from telegram.client import Telegram
 from enquiries import freetext
 try:
+	from utils import get_folders
 	from constants import DATA_FILE,FILES_DIR,API_ID,API_HASH,DATABASE_ENCRYPTION_KEY
 except ImportError:
+	from .utils import get_folders
 	from .constants import DATA_FILE,FILES_DIR,API_ID,API_HASH,DATABASE_ENCRYPTION_KEY
 
 def load_data():
@@ -38,7 +40,7 @@ def load_data():
 
 	except FileNotFoundError :
 		ph_no = freetext("Enter your phone number with country code: ")
-		bup_folders = set(freetext("Enter path to folders to be backedup ( seperated by ',' ): ").split(","))
+		bup_folders = get_folders()
 		chat_id = freetext("Enter the chat ID to be used for backup (leave blank if you are unsure): ")
 
 		if not chat_id.isnumeric() :
