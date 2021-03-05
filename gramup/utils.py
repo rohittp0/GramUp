@@ -18,15 +18,46 @@
 import sys
 import pickle
 import logging
-from os import system
-from shutil import get_terminal_size
 from pathlib import Path
+from os.path import join,isdir
+from os import system,getcwd,listdir
+from shutil import get_terminal_size
+from enquiries import choose,confirm
 try:
 	from constants import CACHE_FILE,LOG_FILE
 	from __init__ import BANNER
 except ImportError:
 	from .constants import CACHE_FILE,LOG_FILE
 	from .__init__ import BANNER
+
+def get_folders(c_dir=getcwd(),selected_dirs=None) :
+	'''
+		This function shows a file chooser to select
+		multiple directories.
+	'''
+	selected_dirs = selected_dirs if selected_dirs else []
+
+	dirs = [ item for item in listdir(c_dir) if isdir(join(c_dir, item)) ]
+
+	options = [ "Select This directory" ]
+	options.extend(dirs)
+	options.append("⬅")
+
+	choise = choose(f"You are in {c_dir}", options)
+
+	if choise == options[0] :
+		selected_dirs.append(c_dir)
+
+		if confirm("Do you want to select more folders?") :
+			return get_folders(c_dir,selected_dirs)
+
+		return selected_dirs
+
+	if choise == options[-1] :
+		return get_folders(Path(c_dir).parent,selected_dirs)
+
+	return get_folders(join(c_dir,choise),selected_dirs)
+
 
 def get_logger() :
 	'''
