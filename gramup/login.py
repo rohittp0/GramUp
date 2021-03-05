@@ -27,6 +27,7 @@ try:
 	from constants import DATA_FILE,FILES_DIR,API_ID,API_HASH,DATABASE_ENCRYPTION_KEY
 except ImportError:
 	from .utils import get_folders
+	from .__init__ import VERSION
 	from .constants import DATA_FILE,FILES_DIR,API_ID,API_HASH,DATABASE_ENCRYPTION_KEY
 
 def load_data():
