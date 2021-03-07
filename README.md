@@ -1,3 +1,4 @@
+![GramUp Icon](GramUp Icon.png?raw=true "GramUp")
 
 # GramUp
 
