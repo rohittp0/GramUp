@@ -1,4 +1,4 @@
-<img src="https://github.com/rohittp0/GramUp/blob/dev/GramUp%20Icon.png" width=300>
+<img src="https://github.com/rohittp0/GramUp/blob/main/GramUp%20Icon.png" width=300>
 
 # GramUp
 
