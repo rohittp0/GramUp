@@ -1,3 +1,5 @@
+<img src="https://github.com/rohittp0/GramUp/blob/dev/GramUp%20Icon.png" width=300>
+
 # GramUp
 
   1. [What is GramUp?](#what-is-gramup)
