@@ -36,9 +36,9 @@ jobs:
       - name: Build with pyinstaller 
         run:   |
           if [ "$RUNNER_OS" == "Windows" ]; then
-            pyinstaller gramup\__main__.py
+            pyinstaller --clean -y -F gramup\__main__.py 
           else
-            pyinstaller gramup/__main__.py
+            pyinstaller --clean -y -F gramup/__main__.py 
             ls 
             ls gramup
           fi
@@ -47,5 +47,6 @@ jobs:
         run: |
           git config --global user.name 'Rohit T P'
           git config --global user.email 'rohittp0@users.noreply.github.com'
+          git add .
           git commit -am "Automated build"
           git push    
