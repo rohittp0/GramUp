@@ -1,105 +1,96 @@
-#    This is a utility to use Telegram's unlimited storage for backup. 	
-#    Copyright (C) 2021  Rohit T P
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU Affero General Public License as published
-#    by the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU Affero General Public License for more details.
-#
-#    You should have received a copy of the GNU Affero General Public License
-#    along with this program.  If not, see https://www.gnu.org/licenses/
+'''
+    This is a utility to use Telegram's unlimited storage for backup.
+    Copyright (C) 2021  Rohit T P
+
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU Affero General Public License as published
+    by the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU Affero General Public License for more details.
+
+    You should have received a copy of the GNU Affero General Public License
+    along with this program.  If not, see https://www.gnu.org/licenses/
+'''
 
 from shutil import copyfile,rmtree
 from os.path import join,dirname,isfile
 from os import makedirs
 try :
-	from constants import RE_FOLDER,MESGS_DIR
-	from utils import printProgressBar
-except :
-	from .constants import RE_FOLDER,MESGS_DIR
-	from .utils import printProgressBar	
-	
-def getUploadedFiles(tg,chat_id) :	
-	last_id = 0
-	files = []
-	
-	while True :
-		messages = tg.call_method(
-			"getChatHistory",
-			{
-				"chat_id": chat_id,
-				"offset": 0,
-				"limit": 100,
-				"only_local": False,
-				"from_message_id": last_id
-			}
-		)
-		
-		messages.wait()
-		if len(messages.update["messages"]) == 0 : break
-		for message in messages.update["messages"] :
-			if "document" in message["content"] and message["content"]["document"]["document"]["local"]["can_be_downloaded"] :
-				files.append((message["content"]["document"]["document"]["id"],message["content"]["caption"]["text"]))
-			last_id = message["id"]
-	
-	return files
-	
-def downloadFiles(tg,files) :
-	(restored,failed,total) = (0,0,len(files))
-	errors = ""
-	
-	if total <= 0 : return (restored,failed,errors)
-	
-	printProgressBar(0,total, autosize = True)
-	
-	for (file_id,path) in files :
-		
-		if isfile(join(RE_FOLDER,path)) : 
+	from constants import RE_FOLDER,MESGS_DIR,OTHER_FOLDER
+	from utils import print_progress_bar,get_messages,download_file,get_file_id,get_logger
+except ImportError :
+	from .constants import RE_FOLDER,MESGS_DIR,OTHER_FOLDER
+	from .utils import print_progress_bar,get_messages,download_file,get_file_id,get_logger
+
+def download_files(tg_client,chat_id) :
+	'''
+		This function downloads and moves files to the
+		appropriate directories in RE_FOLDER
+	'''
+	print("Getting file list...")
+	files = get_messages(tg_client,chat_id)
+	restored,failed,total = (0,0,len(files))
+	errors,file_log = "",get_logger()
+
+	file_log.info("%s files to restore",total)
+	print("Restoring files\nPress ctrl+c to save progress and stop.\n")
+
+	if total <= 0 :
+		return (0,0,"")
+
+	print_progress_bar(0,total)
+
+	for (msg_id,file_id,path) in files :
+
+		if isfile(join(RE_FOLDER,path)) :
 			restored+=1
-			printProgressBar(restored+failed, total, prefix = 'Restoring:', suffix = 'Complete', autosize = True)
+			print_progress_bar(restored+failed, total,"", suffix = f"{restored+failed} of {total} done")
 			continue
-			
-		task = tg.call_method("downloadFile",
-			{
-				"file_id": file_id,
-				"priority": 32,
-				"offset": 0,
-				"limit": 0,
-				"synchronous": True
-			}
-		)
-		task.wait()
-		if not path : path = str(file_id)
-		if task.error_info == None :
-			makedirs(dirname(join(RE_FOLDER,path)), exist_ok=True)	
+
+		task = download_file(tg_client,file_id if file_id else get_file_id(tg_client,chat_id,msg_id))
+
+		if not ( path and dirname(path) ):
+			path = join(OTHER_FOLDER,str(file_id))
+
+		if task.error_info is None :
+			makedirs(dirname(join(RE_FOLDER,path)), exist_ok=True)
 			copyfile(task.update["local"]["path"],join(RE_FOLDER,path))
 			restored += 1
-		else : 
+		else :
+			file_log.error("Error restoring file %s",task.error_info)
 			errors += str(task.error_info) + "\n"
 			failed += 1
-		printProgressBar(restored+failed, total, prefix = 'Restoring:', suffix = 'Complete', autosize = True)
-		
-	return (restored,failed,errors)				   
 
-def restore(tg,chat_id) :
-	print("\nGetting file list")
-	files = getUploadedFiles(tg,chat_id)
-	
-	print(f"Restoring {len(files)} files\n")
-	(restored,failed,errors) = downloadFiles(tg,files)
-	
-	print("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
-	print(f"{restored} files restored to ~/Restored")
-	print(f"{failed} failed \n")
-	print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
-	
-	rmtree(MESGS_DIR)
-	
+		print_progress_bar(restored+failed, total,"", suffix = f"{restored+failed} of {total} done")
+
+	return (restored,failed,errors)
+
+def restore(tg_client_client,chat_id) :
+	'''
+		This function starts the restore process.
+	'''
+	try :
+		(restored,failed,errors) = download_files(tg_client_client,chat_id)
+
+		print("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+		print(f"{restored} files restored to ~/Restored")
+		print(f"{failed} failed \n")
+		print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+
+	except KeyboardInterrupt :
+		failed = 0
+		print("\nRestoration paused.")
+
+	try :
+		rmtree(MESGS_DIR)
+	except FileNotFoundError :
+		get_logger().error("Messages directory not found.")
+
 	if failed > 0 and input("Do you wan't to see the error log (y/N) ? : ").lower() == "y" :
 		print(errors)
-			
+
+	input("Press enter to continue.")
