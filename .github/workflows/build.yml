@@ -38,7 +38,7 @@ jobs:
         shell: bash
       - uses: actions/upload-artifact@master
         with:
-          name: my-artifact
+          name: Upload created files
           path: dist  
 
   commit:
@@ -47,6 +47,10 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - uses: actions/download-artifact@master
+        with:
+          name: Download created files 
+          path: dist
       - name: Setup Git
         run: |
           git config --global user.name 'Rohit T P'
