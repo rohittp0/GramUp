@@ -1,0 +1,90 @@
+name: Build
+
+# Controls when the action will run. 
+on:
+  # Triggers the workflow on push events but only for the dev branch
+  push:
+    branches: [ dev ]
+
+  # To run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains two jobs called "build" and "commit"
+  build:
+    name: Build Gramup on ${{ matrix.os }}
+    # The types of runners that the job will run on
+    runs-on: ${{ matrix.os }}
+    
+    strategy:
+      matrix:
+        os: [ubuntu-20.04, macos-latest, windows-latest]
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out this repository under $GITHUB_WORKSPACE
+      - uses: actions/checkout@v2
+      
+      # Sets up pthon 3.8
+      - name: Set up Python 3.8
+        uses: actions/setup-python@v1
+        with:
+          python-version: 3.8
+
+      # Installs dependencies needed for build 	
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pyinstaller
+          pip install -r requirements.txt
+
+      # Builds the app using pyinstaller
+      - name: Build with pyinstaller 
+        env:
+          OS_FILENAME: '${{ runner.os }}-app'    
+        run: ./build.sh ${OS_FILENAME}
+        shell: bash
+      
+      # Uploads the newly created files for later use	
+      - uses: actions/upload-artifact@master
+        with:
+          name: created_files
+          path: dist  
+
+  commit:
+    name: Commit created files
+    # Waits for build to complete before proceding.
+    needs: build
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    
+    steps:
+    # Checks-out this repository under $GITHUB_WORKSPACE	
+      - uses: actions/checkout@v2
+      
+      # Downloads previously uploaded files 	
+      - uses: actions/download-artifact@master
+        with:
+          name: created_files 
+          path: dist
+          
+      # Configures git
+      - name: Setup Git
+        run: |
+          git config --global user.name 'Rohit T P'
+          git config --global user.email 'rohittp0@users.noreply.github.com'
+          git checkout release
+          
+      # Adds the downloaded files to repo
+      - name: Add
+        run: |
+          git rm **/*
+          git add dist/*
+      
+      # Commits and pushes the repo to origin
+      - name: Commit
+        run: |
+          git commit -am "Automated build"
+          git push
+
