@@ -38,7 +38,7 @@ jobs:
         shell: bash
       - uses: actions/upload-artifact@master
         with:
-          name: Upload created files
+          name: created_files
           path: dist  
 
   commit:
@@ -49,7 +49,7 @@ jobs:
     steps:
       - uses: actions/download-artifact@master
         with:
-          name: Download created files 
+          name: created_files 
           path: dist
       - name: Setup Git
         run: |
