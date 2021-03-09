@@ -34,19 +34,13 @@ jobs:
           python -m pip install --upgrade pip
           pip install pyinstaller
       - name: Build with pyinstaller 
-        run:   |
-          if [ "$RUNNER_OS" == "Windows" ]; then
-            pyinstaller --clean -y -F gramup\__main__.py 
-          else
-            pyinstaller --clean -y -F gramup/__main__.py 
-            ls 
-            ls gramup
-          fi
+        run: pyinstaller --clean -y -F gramup/__main__.py 
         shell: bash
       - name: Commit Generated files
         run: |
           git config --global user.name 'Rohit T P'
           git config --global user.email 'rohittp0@users.noreply.github.com'
           git add .
-          git commit -am "Automated build"
+          git pull
+          git commit -am "Automated build for ${{ matrix.os }}"
           git push    
