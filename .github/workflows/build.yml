@@ -36,7 +36,7 @@ jobs:
       - name: Build with pyinstaller 
         env:
           OS_FILENAME: '${{ runner.os }}-app'    
-        run: pyinstaller --clean -y -F -n '$OS_FILENAME' gramup/__main__.py 
+        run: pyinstaller --clean -y -F -n ${OS_FILENAME} gramup/__main__.py 
         shell: bash
       - uses: actions/upload-artifact@master
         with:
