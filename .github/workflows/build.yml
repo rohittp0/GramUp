@@ -1,12 +1,10 @@
-name: Create Executables
+name: Build
 
 # Controls when the action will run. 
 on:
   # Triggers the workflow on push or pull request events but only for the dev branch
   push:
-    branches: [ dev ]
-  pull_request:
-    branches: [ dev ]
+    branches: [ main ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -35,15 +33,16 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
-      - name: Build with pyinstaller    
-      - uses: knicknic/os-specific-run@v1
-        with:
-          macos: pyinstaller gramup/__main__.py
-          linux: |
+      - name: Build with pyinstaller 
+        run:   |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            pyinstaller gramup\__main__.py
+          else
             pyinstaller gramup/__main__.py
-            ls
+            ls 
             ls gramup
-          windows: pyinstaller gramup\__main__.py
+          fi
+        shell: bash
       - name: Commit Generated files
         run: |
           git config --global user.name 'Rohit T P'
