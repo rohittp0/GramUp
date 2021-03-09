@@ -33,10 +33,9 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
-      - name: Get runner OS
+      - name: Build with pyinstaller 
         env:
           OS_FILENAME: '${{ runner.os }}-app'    
-      - name: Build with pyinstaller 
         run: pyinstaller --clean -y -F -n '$OS_FILENAME' gramup/__main__.py 
         shell: bash
       - uses: actions/upload-artifact@master
