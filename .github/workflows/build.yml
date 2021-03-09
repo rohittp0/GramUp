@@ -37,9 +37,15 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
-      - name: Build with pyinstaller
-        run: |
-          pyinstaller gramup/__main__.py
+      - name: Build with pyinstaller    
+      - uses: knicknic/os-specific-run@v1
+        with:
+          macos: pyinstaller gramup/__main__.py
+          linux: |
+            pyinstaller gramup/__main__.py
+            ls
+            ls gramup
+          windows: pyinstaller gramup\__main__.py
       - name: Commit Generated files
         run: |
           git config --global user.name 'Rohit T P'
