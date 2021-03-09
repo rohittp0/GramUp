@@ -47,6 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
+      - uses: actions/checkout@v2
       - uses: actions/download-artifact@master
         with:
           name: created_files 
