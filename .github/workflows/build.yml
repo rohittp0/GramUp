@@ -42,7 +42,7 @@ jobs:
       - name: Build with pyinstaller 
         env:
           OS_FILENAME: '${{ runner.os }}-app'    
-        run: build.sh ${OS_FILENAME}
+        run: ./build.sh ${OS_FILENAME}
         shell: bash
       
       # Uploads the newly created files for later use	
