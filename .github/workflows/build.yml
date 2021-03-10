@@ -79,7 +79,7 @@ jobs:
       # Adds the downloaded files to repo
       - name: Add
         run: |
-          git rm **/*
+          git rm -r .
           git add dist/*
       
       # Commits and pushes the repo to origin
