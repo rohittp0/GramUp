@@ -1,3 +1,0 @@
-speedtest-cli
-python-telegram
-enquiries
