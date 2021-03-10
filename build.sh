@@ -1,5 +1,3 @@
-rm -rf dist
-
 pip install -r requirements.txt
 
 pyinstaller --clean -y -F -n "$1" \
