@@ -37,7 +37,7 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install pyinstaller
-					
+	  
       # Builds the app using pyinstaller
       - name: Build with pyinstaller 
         env:
@@ -61,7 +61,7 @@ jobs:
     steps:
     # Checks-out this repository under $GITHUB_WORKSPACE	
       - uses: actions/checkout@v2
-			
+      
       # Downloads previously uploaded files 	
       - uses: actions/download-artifact@master
         with:
