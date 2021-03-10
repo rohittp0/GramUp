@@ -32,10 +32,27 @@ jobs:
         with:
           python-version: 3.8
 
+      # Setup pip
+      - name: Setup pip
+        run: python -m pip install --upgrade pip
+
+      # Get the path to cache directory used by pip
+      - name: Get pip cache dir
+        id: pip-cache
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
+
+      - name: Cache pip
+        uses: actions/cache@v2
+        with:
+          # This path is specific to Ubuntu
+          path: ${{ steps.pip-cache.outputs.dir }}
+          # Look to see if there is a cache hit for the corresponding requirements file
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
       # Installs dependencies needed for build 	
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
           pip install pyinstaller
           pip install -r requirements.txt
 
