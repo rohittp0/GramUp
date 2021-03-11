@@ -58,18 +58,24 @@ jobs:
 
       # Builds the app using pyinstaller
       - name: Build with pyinstaller 
-        id: pyinstaller-run
         env:
           OS_FILENAME: '${{ runner.os }}-app'    
         run: |
           ./build.sh ${OS_FILENAME}
           touch ${OS_FILENAME}.count
-          echo "::set-output name=count::$(find . -name "*.count" | wc -l)"
         shell: bash
+        
+      # Wait for files to be created
+      - name: Wait for files
+        if: runner.os == 'Linux'
+        run: |
+          while [ $(find . -name "*.count" | wc -l) < $OS_COUNT ]; do sleep 1; done 
+        env: 
+          OS_COUNT: ${{ strategy.job-index }}  
       
       # Uploads the newly created files for later use	
       - name: Upload Artifacts
-        if: steps.pyinstaller-run.outputs.count == 3 
+        if: runner.os == 'Linux'
         uses: actions/upload-artifact@master
         with:
           name: created_files
