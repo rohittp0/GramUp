@@ -8,6 +8,23 @@ on:
     types: [created]
 
 jobs:
+
+  release:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+      - uses: actions/checkout@v2
+        with:
+          ref: "release"
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
   deploy:
 
     runs-on: ubuntu-latest
