@@ -58,13 +58,19 @@ jobs:
 
       # Builds the app using pyinstaller
       - name: Build with pyinstaller 
+        id: pyinstaller-run
         env:
           OS_FILENAME: '${{ runner.os }}-app'    
-        run: ./build.sh ${OS_FILENAME}
+        run: |
+          ./build.sh ${OS_FILENAME}
+          touch ${OS_FILENAME}.count
+          echo "::set-output name=count::$(find . -name "*.count" | wc -l)"
         shell: bash
       
       # Uploads the newly created files for later use	
-      - uses: actions/upload-artifact@master
+      - name: Upload Artifacts
+        if: steps.pyinstaller-run.outputs.count == 3 
+        uses: actions/upload-artifact@master
         with:
           name: created_files
           path: dist  
