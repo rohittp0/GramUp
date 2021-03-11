@@ -19,7 +19,7 @@ jobs:
     
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
+        os: [ubuntu-20.04, macos-latest, windows-latest]
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
@@ -32,21 +32,51 @@ jobs:
         with:
           python-version: 3.8
 
+      # Setup pip
+      - name: Setup pip
+        run: python -m pip install --upgrade pip
+
+      # Get the path to cache directory used by pip
+      - name: Get pip cache dir
+        id: pip-cache
+        run: |
+          echo "::set-output name=dir::$(pip cache dir)"
+
+      - name: Cache pip
+        uses: actions/cache@v2
+        with:
+          # This path is specific to Ubuntu
+          path: ${{ steps.pip-cache.outputs.dir }}
+          # Look to see if there is a cache hit for the corresponding requirements file
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+
       # Installs dependencies needed for build 	
       - name: Install dependencies
         run: |
-          python -m pip install --upgrade pip
           pip install pyinstaller
+          pip install -r requirements.txt
 
       # Builds the app using pyinstaller
       - name: Build with pyinstaller 
         env:
           OS_FILENAME: '${{ runner.os }}-app'    
-        run: ./build.sh ${OS_FILENAME}
+        run: |
+          ./build.sh ${OS_FILENAME}
+          touch ${OS_FILENAME}.count
         shell: bash
+        
+      # Wait for files to be created
+      - name: Wait for files
+        if: runner.os == 'Linux'
+        run: |
+          while [ $(find . -name "*.count" | wc -l) < $OS_COUNT ]; do sleep 1; done 
+        env: 
+          OS_COUNT: ${{ strategy.job-index }}  
       
       # Uploads the newly created files for later use	
-      - uses: actions/upload-artifact@master
+      - name: Upload Artifacts
+        if: runner.os == 'Linux'
+        uses: actions/upload-artifact@master
         with:
           name: created_files
           path: dist  
@@ -61,6 +91,8 @@ jobs:
     steps:
     # Checks-out this repository under $GITHUB_WORKSPACE	
       - uses: actions/checkout@v2
+        with:
+          ref: "release"
       
       # Downloads previously uploaded files 	
       - uses: actions/download-artifact@master
@@ -76,7 +108,8 @@ jobs:
           
       # Adds the downloaded files to repo
       - name: Add
-        run: git add dist/*
+        run: |
+          git add dist/*
       
       # Commits and pushes the repo to origin
       - name: Commit
