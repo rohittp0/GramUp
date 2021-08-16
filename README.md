@@ -56,7 +56,7 @@
 
 This method always gets you the stable version of **GramUp** and is the recommended method. Install [pip](https://pypi.org/project/pip/) if you don't have it then run :
 
-    pip install gramup
+    pip install gramup --user
 And that is it!
 
 ### Method 2 
