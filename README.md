@@ -106,11 +106,11 @@ To start the program run,
  Currently **GramUp** doesn't support automatic backup and restore on Android/iOS. You could backup files manually by sending them to the chat you selected for backup ( must be sent as document ) with the path to where you want it restored as the caption.
 
 Files backed up by **GramUp** can be accessed using the UnLim app on Android. [UnLim](https://play.google.com/store/apps/details?id=com.kratosle.unlim&hl=en_IN&gl=US) can also be used to backup files from Android to then be restored using **GramUp**. To make **GramUp** compatible with UnLim just select the "saved messages" chat ( The chat which is used by UnLim ) as the chat for backup. Do check out UnLim's [facebook page](https://www.facebook.com/unlimcloudteam/).
-  
+
 
 ## Questions and Feedback
 
-If you are facing any problem feel free to open an issue or mail me a stack overflow question with  `gramup`  as the tag. All pull requests are always welcome.
+If you are facing any problem feel free to open an issue or mail me a stack overflow question with  `gramup`  as the tag. All pull requests are always welcome. If you want to know how GramUp works checkout this [map](https://app.codesee.io/maps/public/82cdf100-2de8-11ec-80d0-7d2f654f857e)
 
 ### Contact Me
 
