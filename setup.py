@@ -40,7 +40,7 @@ setup(
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU Affero General Public License v3",
-        "Operating System :: OS Independent",
+        "Operating System :: Unix",
     ],
     entry_points={
         "console_scripts": ["gramup=gramup.__main__:main"]
