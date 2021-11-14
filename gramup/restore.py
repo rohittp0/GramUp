@@ -20,8 +20,12 @@ from shutil import copyfile, rmtree
 from os.path import join, dirname, isfile
 from os import makedirs
 
-from gramup.constants import RE_FOLDER, OTHER_FOLDER, MESGS_DIR
-from gramup.utils import get_messages, get_logger, print_progress_bar, get_file_id, download_file
+try:
+    from gramup.constants import RE_FOLDER, OTHER_FOLDER, MESGS_DIR
+    from gramup.utils import get_messages, get_logger, print_progress_bar, get_file_id, download_file
+except ModuleNotFoundError:
+    from constants import RE_FOLDER, OTHER_FOLDER, MESGS_DIR
+    from utils import get_messages, get_logger, print_progress_bar, get_file_id, download_file
 
 
 def download_files(tg_client, chat_id):

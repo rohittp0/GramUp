@@ -21,8 +21,12 @@ import pickle
 from shutil import rmtree
 from enquiries import choose, confirm
 
-from gramup.constants import CACHE_DIR, DATA_FILE, GRAMUP_DIR
-from gramup.utils import get_logger, get_folders
+try:
+    from gramup.constants import CACHE_DIR, DATA_FILE, GRAMUP_DIR
+    from gramup.utils import get_logger, get_folders
+except ModuleNotFoundError:
+    from constants import CACHE_DIR, DATA_FILE, GRAMUP_DIR
+    from utils import get_logger, get_folders
 
 
 def clear_cache(_):

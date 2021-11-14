@@ -24,7 +24,10 @@ from tempfile import gettempdir
 from os.path import join, basename
 from enquiries import choose, freetext
 
-from gramup.utils import download_file, get_file_id, get_logger, get_messages
+try:
+    from gramup.utils import download_file, get_file_id, get_logger, get_messages
+except ModuleNotFoundError:
+    from utils import download_file, get_file_id, get_logger, get_messages
 
 
 def show_file(tg_client, chat_id, files):
