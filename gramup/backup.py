@@ -23,7 +23,10 @@ from math import ceil
 import time
 import speedtest
 
-from gramup.utils import get_messages, get_logger, get_new_files, print_progress_bar
+try:
+    from gramup.utils import get_messages, get_logger, get_new_files, print_progress_bar
+except ModuleNotFoundError:
+    from utils import get_messages, get_logger, get_new_files, print_progress_bar
 
 
 def get_uploaded_files(tg_client, chat_id, parents):
@@ -112,7 +115,7 @@ def show_results(done, failed, errors):
     print(f"{failed} files failed to upload")
     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
 
-    if failed > 0 and input("Do you wan't to see the error log (y/N) ? : ").lower() == "y":
+    if failed > 0 and input("Do you want to see the error log (y/N) ? : ").lower() == "y":
         print(errors)
 
     input("Press enter to continue.")

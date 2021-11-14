@@ -19,12 +19,20 @@ import sys
 
 from enquiries import choose
 
-from gramup.backup import backup
-from gramup.login import login
-from gramup.restore import restore
-from gramup.search import search
-from gramup.settings import settings
-from gramup.utils import get_logger, print_banner
+try:
+    from gramup.backup import backup
+    from gramup.login import login
+    from gramup.restore import restore
+    from gramup.search import search
+    from gramup.settings import settings
+    from gramup.utils import get_logger, print_banner
+except ModuleNotFoundError:
+    from backup import backup
+    from login import login
+    from restore import restore
+    from search import search
+    from settings import settings
+    from utils import get_logger, print_banner
 
 
 def client_ready(tg_client, chat_id, bup_folders):

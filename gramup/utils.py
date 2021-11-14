@@ -24,8 +24,12 @@ from os import system, getcwd, listdir
 from shutil import get_terminal_size
 from enquiries import choose, confirm
 
-from gramup import BANNER
-from gramup.constants import LOG_FILE
+try:
+    from gramup import BANNER
+    from gramup.constants import LOG_FILE
+except ModuleNotFoundError:
+    from __init__ import BANNER
+    from constants import LOG_FILE
 
 
 def get_folders(c_dir=None, selected_dirs=None):

@@ -22,9 +22,14 @@ import sys
 from telegram.client import Telegram
 from enquiries import freetext
 
-from gramup import VERSION
-from gramup.constants import DATA_FILE, FILES_DIR, API_ID, API_HASH, DATABASE_ENCRYPTION_KEY
-from gramup.utils import get_folders
+try:
+    from gramup import VERSION
+    from gramup.constants import DATA_FILE, FILES_DIR, API_ID, API_HASH, DATABASE_ENCRYPTION_KEY
+    from gramup.utils import get_folders
+except ModuleNotFoundError:
+    from __init__ import VERSION
+    from constants import DATA_FILE, FILES_DIR, API_ID, API_HASH, DATABASE_ENCRYPTION_KEY
+    from utils import get_folders
 
 
 def load_data():
