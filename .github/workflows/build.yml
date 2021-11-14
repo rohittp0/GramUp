@@ -26,11 +26,11 @@ jobs:
       # Checks-out this repository under $GITHUB_WORKSPACE
       - uses: actions/checkout@v2
       
-      # Sets up pthon 3.8
-      - name: Set up Python 3.8
+      # Sets up python 3.8
+      - name: Set up Python 3.10
         uses: actions/setup-python@v1
         with:
-          python-version: 3.8
+          python-version: 3.10
 
       # Setup pip
       - name: Setup pip

@@ -1,4 +1,4 @@
-'''
+"""
     This is a utility to use Telegram's unlimited storage for backup.
     Copyright (C) 2021  Rohit T P
 
@@ -14,83 +14,84 @@
 
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see https://www.gnu.org/licenses/
-'''
+"""
 
-from shutil import copyfile,rmtree
-from os.path import join,dirname,isfile
+from shutil import copyfile, rmtree
+from os.path import join, dirname, isfile
 from os import makedirs
-try :
-	from constants import RE_FOLDER,MESGS_DIR,OTHER_FOLDER
-	from utils import print_progress_bar,get_messages,download_file,get_file_id,get_logger
-except ImportError :
-	from .constants import RE_FOLDER,MESGS_DIR,OTHER_FOLDER
-	from .utils import print_progress_bar,get_messages,download_file,get_file_id,get_logger
 
-def download_files(tg_client,chat_id) :
-	'''
-		This function downloads and moves files to the
-		appropriate directories in RE_FOLDER
-	'''
-	print("Getting file list...")
-	files = get_messages(tg_client,chat_id)
-	restored,failed,total = (0,0,len(files))
-	errors,file_log = "",get_logger()
+from gramup.constants import RE_FOLDER, OTHER_FOLDER, MESGS_DIR
+from gramup.utils import get_messages, get_logger, print_progress_bar, get_file_id, download_file
 
-	file_log.info("%s files to restore",total)
-	print("Restoring files\nPress ctrl+c to save progress and stop.\n")
 
-	if total <= 0 :
-		return (0,0,"")
+def download_files(tg_client, chat_id):
+    """
+        This function downloads and moves files to the
+        appropriate directories in RE_FOLDER
+    """
+    print("Getting file list...")
+    files = get_messages(tg_client, chat_id)
+    restored, failed, total = (0, 0, len(files))
+    errors, file_log = "", get_logger()
 
-	print_progress_bar(0,total)
+    file_log.info("%s files to restore", total)
+    print("Restoring files\nPress ctrl+c to save progress and stop.\n")
 
-	for (msg_id,file_id,path) in files :
+    if total <= 0:
+        return 0, 0, ""
 
-		if isfile(join(RE_FOLDER,path)) :
-			restored+=1
-			print_progress_bar(restored+failed, total,"", suffix = f"{restored+failed} of {total} done")
-			continue
+    print_progress_bar(0, total)
 
-		task = download_file(tg_client,file_id if file_id else get_file_id(tg_client,chat_id,msg_id))
+    for (msg_id, file_id, path) in files:
 
-		if not ( path and dirname(path) ):
-			path = join(OTHER_FOLDER,str(file_id))
+        if isfile(join(RE_FOLDER, path)):
+            restored += 1
+            print_progress_bar(restored + failed, total, "", suffix=f"{restored + failed} of {total} done")
+            continue
 
-		if task.error_info is None :
-			makedirs(dirname(join(RE_FOLDER,path)), exist_ok=True)
-			copyfile(task.update["local"]["path"],join(RE_FOLDER,path))
-			restored += 1
-		else :
-			file_log.error("Error restoring file %s",task.error_info)
-			errors += str(task.error_info) + "\n"
-			failed += 1
+        task = download_file(tg_client, file_id if file_id else get_file_id(tg_client, chat_id, msg_id))
 
-		print_progress_bar(restored+failed, total,"", suffix = f"{restored+failed} of {total} done")
+        if not (path and dirname(path)):
+            path = join(OTHER_FOLDER, str(file_id))
 
-	return (restored,failed,errors)
+        if task.error_info is None:
+            makedirs(dirname(join(RE_FOLDER, path)), exist_ok=True)
+            copyfile(task.update["local"]["path"], join(RE_FOLDER, path))
+            restored += 1
+        else:
+            file_log.error("Error restoring file %s", task.error_info)
+            errors += str(task.error_info) + "\n"
+            failed += 1
 
-def restore(tg_client_client,chat_id) :
-	'''
-		This function starts the restore process.
-	'''
-	try :
-		(restored,failed,errors) = download_files(tg_client_client,chat_id)
+        print_progress_bar(restored + failed, total, "", suffix=f"{restored + failed} of {total} done")
 
-		print("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
-		print(f"{restored} files restored to ~/Restored")
-		print(f"{failed} failed \n")
-		print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+    return restored, failed, errors
 
-	except KeyboardInterrupt :
-		failed = 0
-		print("\nRestoration paused.")
 
-	try :
-		rmtree(MESGS_DIR)
-	except FileNotFoundError :
-		get_logger().error("Messages directory not found.")
+def restore(tg_client_client, chat_id):
+    """
+        This function starts the restore process.
+    """
+    errors = ""
 
-	if failed > 0 and input("Do you wan't to see the error log (y/N) ? : ").lower() == "y" :
-		print(errors)
+    try:
+        (restored, failed, errors) = download_files(tg_client_client, chat_id)
 
-	input("Press enter to continue.")
+        print("\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+        print(f"{restored} files restored to ~/Restored")
+        print(f"{failed} failed \n")
+        print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~\n")
+
+    except KeyboardInterrupt:
+        failed = 0
+        print("\nRestoration paused.")
+
+    try:
+        rmtree(MESGS_DIR)
+    except FileNotFoundError:
+        get_logger().error("Messages directory not found.")
+
+    if failed > 0 and input("Do you want to see the error log (y/N) ? : ").lower() == "y":
+        print(errors)
+
+    input("Press enter to continue.")

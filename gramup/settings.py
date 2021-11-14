@@ -1,4 +1,4 @@
-'''
+"""
     This is a utility to use Telegram's unlimited storage for backup.
     Copyright (C) 2021  Rohit T P
 
@@ -14,96 +14,102 @@
 
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see https://www.gnu.org/licenses/
-'''
+"""
+
 import sys
 import pickle
 from shutil import rmtree
-from enquiries import choose,confirm
-try :
-	from utils import get_logger,get_folders
-	from constants import CACHE_DIR,DATA_FILE,GRAMUP_DIR
-except ImportError :
-	from .utils import get_logger,get_folders
-	from .constants import CACHE_DIR,DATA_FILE,GRAMUP_DIR
+from enquiries import choose, confirm
 
-def clear_cache(_) :
-	'''
-		This function clears all local caches.
-	'''
-	if not confirm("Are you sure you want to clear all cache?") :
-		return
+from gramup.constants import CACHE_DIR, DATA_FILE, GRAMUP_DIR
+from gramup.utils import get_logger, get_folders
 
-	file_log = get_logger()
 
-	try :
-		rmtree(CACHE_DIR)
-	except FileNotFoundError :
-		file_log.warning("Cache already cleared")
+def clear_cache(_):
+    """
+        This function clears all local caches.
+    """
 
-	file_log.info("Cache cleared")
-	input("Cache cleared. Press any enter to continue.")
+    if not confirm("Are you sure you want to clear all cache?"):
+        return
 
-def change_folder(_) :
-	'''
-		This function allows user to change backup folder.
-	'''
-	file_log = get_logger()
+    file_log = get_logger()
 
-	try:
-		with open(DATA_FILE, "rb") as dbfile:
-			db_dict = pickle.load(dbfile)
+    try:
+        rmtree(CACHE_DIR)
+    except FileNotFoundError:
+        file_log.warning("Cache already cleared")
 
-	except FileNotFoundError :
-		file_log.warning("No backup folders to change")
-		db_dict = {}
+    file_log.info("Cache cleared")
+    input("Cache cleared. Press any enter to continue.")
 
-	if not confirm(f"Currently {','.join(db_dict['back_up_folders'])} are backedup.Do you want to change this?") :
-		return
 
-	db_dict[ "back_up_folders" ] = get_folders()
+def change_folder(_):
+    """
+        This function allows user to change backup folder.
+    """
 
-	with open(DATA_FILE, "wb") as dbfile:
-		pickle.dump(db_dict, dbfile)
+    file_log = get_logger()
 
-	file_log.info("Backup Folders changed.")
-	input("Backup Folders changed. Press any enter to continue.")
-	sys.exit(0)
+    try:
+        with open(DATA_FILE, "rb") as db_file:
+            db_dict = pickle.load(db_file)
 
-def logout(tg_client) :
-	'''
-		This function logs the user out.
-	'''
-	file_log = get_logger()
+    except FileNotFoundError:
+        file_log.warning("No backup folders to change")
+        db_dict = {}
 
-	if not confirm("Are you sure you want to Logout?") :
-		return
+    if not confirm(f"Currently {','.join(db_dict['back_up_folders'])} are backedup.Do you want to change this?"):
+        return
 
-	task = tg_client.call_method("logOut",{})
-	task.wait()
+    db_dict["back_up_folders"] = get_folders()
 
-	if task.error_info :
-		print("Oops something went wrong")
-		file_log.error(task.error_info)
-		return
+    with open(DATA_FILE, "wb") as db_file:
+        pickle.dump(db_dict, db_file)
 
-	try :
-		rmtree(GRAMUP_DIR)
-	except FileNotFoundError :
-		file_log.warning("Cache already cleared")
+    file_log.info("Backup Folders changed.")
+    input("Backup Folders changed. Press any enter to continue.")
+    sys.exit(0)
 
-	file_log.info("Loged out")
-	input("Loged out. Press enter to continue.")
-	sys.exit(0)
 
-def settings(tg_client) :
-	'''
-		This function displays the settings menu.
-	'''
-	options = ["Clear Cache","Change Backup Folder","Logout","Go-Back"]
-	functions = [ clear_cache, change_folder, logout ]
+def logout(tg_client):
+    """
+        This function logs the user out.
+    """
 
-	try :
-		while True :
-			functions[ options.index(choose("What do you want to do?", options)) ](tg_client)
-	except IndexError :
-		pass
+    file_log = get_logger()
+
+    if not confirm("Are you sure you want to Logout?"):
+        return
+
+    task = tg_client.call_method("logOut", {})
+    task.wait()
+
+    if task.error_info:
+        print("Oops something went wrong")
+        file_log.error(task.error_info)
+        return
+
+    try:
+        rmtree(GRAMUP_DIR)
+    except FileNotFoundError:
+        file_log.warning("Cache already cleared")
+
+    file_log.info("Loged out")
+    input("Loged out. Press enter to continue.")
+    sys.exit(0)
+
+
+def settings(tg_client):
+    """
+        This function displays the settings menu.
+    """
+
+    options = ["Clear Cache", "Change Backup Folder", "Logout", "Go-Back"]
+    functions = [clear_cache, change_folder, logout]
+
+    try:
+        while True:
+            functions[options.index(choose("What do you want to do?", options))](tg_client)
+    except IndexError:
+        pass

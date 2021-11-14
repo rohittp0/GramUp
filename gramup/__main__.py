@@ -1,4 +1,4 @@
-'''
+"""
     This is a utility to use Telegram's unlimited storage for backup.
     Copyright (C) 2021  Rohit T P
 
@@ -14,67 +14,63 @@
 
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see https://www.gnu.org/licenses/
-'''
+"""
+import sys
 
-try:
-	import sys
-	from enquiries import choose
-	from login import login
-	from backup import backup
-	from search import search
-	from restore import restore
-	from settings import settings
-	from utils import print_banner,get_logger
-except ImportError:
-	from .login import login
-	from .backup import backup
-	from .search import search
-	from .restore import restore
-	from .settings import settings
-	from .utils import print_banner,get_logger
+from enquiries import choose
 
-def client_ready(tg_client,chat_id,bup_folders) :
-	'''
-		This function is called once required data is
-		loaded and Telegram client is initalised.
-	'''
-	if not ( tg_client or chat_id or bup_folders ) :
-		sys.exit(3)
+from gramup.backup import backup
+from gramup.login import login
+from gramup.restore import restore
+from gramup.search import search
+from gramup.settings import settings
+from gramup.utils import get_logger, print_banner
 
-	file_log = get_logger()
 
-	file_log.info("Client ready.")
+def client_ready(tg_client, chat_id, bup_folders):
+    """
+        This function is called once required data is
+        loaded and Telegram client is initialized.
+    """
+    if not (tg_client or chat_id or bup_folders):
+        sys.exit(3)
 
-	options = ["Backup", "Restore", "Search", "Settings", "Quit"]
+    file_log = get_logger()
 
-	try:
-		while True :
-			print_banner()
-			choise = choose("What do you want to do?", options)
+    file_log.info("Client ready.")
 
-			if choise == options[0] :
-				backup(tg_client,chat_id,bup_folders)
-			elif choise == options[1] :
-				restore(tg_client,chat_id)
-			elif choise == options[2] :
-				search(tg_client,chat_id)
-			elif choise == options[3] :
-				settings(tg_client)
-			else :
-				break
+    options = ["Backup", "Restore", "Search", "Settings", "Quit"]
 
-	except KeyboardInterrupt :
-		print_banner()
-		file_log.warning("Keyboard interrupt recived.")
+    try:
+        while True:
+            print_banner()
+            choice = choose("What do you want to do?", options)
 
-	file_log.info("End of excecution.")
-	sys.exit(0)
+            if choice == options[0]:
+                backup(tg_client, chat_id, bup_folders)
+            elif choice == options[1]:
+                restore(tg_client, chat_id)
+            elif choice == options[2]:
+                search(tg_client, chat_id)
+            elif choice == options[3]:
+                settings(tg_client)
+            else:
+                break
 
-def main() :
-	'''
-		This function is called to start GramUp.
-	'''
-	login(client_ready)
+    except KeyboardInterrupt:
+        print_banner()
+        file_log.warning("Keyboard interrupt received.")
 
-if __name__ == "__main__" :
-	main()
+    file_log.info("End of execution.")
+    sys.exit(0)
+
+
+def main():
+    """
+        This function is called to start GramUp.
+    """
+    login(client_ready)
+
+
+if __name__ == "__main__":
+    main()
