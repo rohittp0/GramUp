@@ -38,7 +38,7 @@ setup(
     url="https://github.com/rohittp0/GramUp",
     packages=[PACKAGE_NAME],
     classifiers=[
-        "Programming Language :: Python :: 3.10",
+        "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU Affero General Public License v3",
         "Operating System :: OS Independent",
     ],
@@ -47,5 +47,5 @@ setup(
     },
     include_package_data=True,
     install_requires=requires,
-    python_requires='>=3.6',
+    python_requires='>=3.10.0',
 )
