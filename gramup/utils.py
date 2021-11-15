@@ -16,20 +16,21 @@
     along with this program.  If not, see https://www.gnu.org/licenses/
 """
 
-import sys
 import logging
-from pathlib import Path
-from os.path import join, isdir
+import sys
 from os import system, getcwd, listdir
+from os.path import join, isdir
+from pathlib import Path
 from shutil import get_terminal_size
+
 from enquiries import choose, confirm
 
 try:
     from gramup import BANNER
-    from gramup.constants import LOG_FILE
+    from gramup.constants import LOG_FILE, GRAM_IGNORE
 except ModuleNotFoundError:
     from __init__ import BANNER
-    from constants import LOG_FILE
+    from constants import LOG_FILE, GRAM_IGNORE
 
 
 def get_folders(c_dir=None, selected_dirs=None):
@@ -57,12 +58,12 @@ def get_folders(c_dir=None, selected_dirs=None):
         selected_dirs.add(c_dir)
 
         if confirm("Do you want to select more folders?"):
-            return get_folders(Path(c_dir).parent, selected_dirs)
+            return get_folders(str(Path(c_dir).parent), selected_dirs)
 
         return selected_dirs
 
     if choice == options[-1]:
-        return get_folders(Path(c_dir).parent, selected_dirs)
+        return get_folders(str(Path(c_dir).parent), selected_dirs)
 
     return get_folders(join(c_dir, choice), selected_dirs)
 
@@ -192,8 +193,12 @@ def get_new_files(root, old_files):
 
     files = set([])
     grandparent = Path(root).parent
-
-    for path in Path(root).rglob('*'):
+    excludes = []
+    with open(GRAM_IGNORE) as ignore:
+        excludes = [f"!{i}" for i in ignore.readlines()]
+    exc = "| ".join(excludes)
+    all_files = set(Path(root).rglob(f' ^({exc})'))
+    for path in all_files:
         if path.is_file():
             files.add(str(path))
 
