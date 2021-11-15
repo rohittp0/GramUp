@@ -57,12 +57,12 @@ def get_folders(c_dir=None, selected_dirs=None):
         selected_dirs.add(c_dir)
 
         if confirm("Do you want to select more folders?"):
-            return get_folders(Path(c_dir).parent, selected_dirs)
+            return get_folders(str(Path(c_dir).parent), selected_dirs)
 
         return selected_dirs
 
     if choice == options[-1]:
-        return get_folders(Path(c_dir).parent, selected_dirs)
+        return get_folders(str(Path(c_dir).parent), selected_dirs)
 
     return get_folders(join(c_dir, choice), selected_dirs)
 

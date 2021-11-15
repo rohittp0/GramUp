@@ -97,8 +97,7 @@ def change_chat(tg_client):
             " would you lke to change the folder ? "):
         return
 
-    ret = get_chat_id(tg_client, db_dict["phone_number"], db_dict["back_up_folders"])
-    file_log.info(f'{ret = }')
+    get_chat_id(tg_client, db_dict["phone_number"], db_dict["back_up_folders"])
 
     input("backup chat changed. Press any enter to continue.")
 
