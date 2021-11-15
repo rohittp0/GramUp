@@ -153,6 +153,7 @@ def login():
 
     if chat_id is None:
         chat_id = get_chat_id(tg_client, ph_no, bup_folders)
-
-    tg_client.get_chats().wait()
+    print('getting chats ')
+    tg_client.get_chats()
+    print('getting chat completed')
     return tg_client, chat_id, bup_folders

@@ -78,7 +78,6 @@ def change_folder(_):
     input("Backup Folders changed. Press any enter to continue.")
 
 
-
 def change_chat(tg_client):
     """
         This function allows user to change backup folder.
@@ -100,7 +99,6 @@ def change_chat(tg_client):
     file_log.info(f'{ret = }')
 
     input("backup chat changed. Press any enter to continue.")
-
 
 
 def logout(tg_client):
