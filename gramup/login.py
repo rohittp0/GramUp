@@ -22,7 +22,7 @@ import sys
 import threading
 
 from telegram.client import Telegram
-from enquiries import freetext
+from enquiries import freetext, confirm
 
 try:
     from gramup import VERSION
@@ -154,5 +154,8 @@ def login():
     if chat_id is None:
         chat_id = get_chat_id(tg_client, ph_no, bup_folders)
 
-    tg_client.get_chats().wait()
+        if confirm("Do you want to load previously backed-up file list?"):
+            print("Getting file list, this might take some time...")
+            tg_client.get_chats().wait()
+
     return tg_client, chat_id, bup_folders

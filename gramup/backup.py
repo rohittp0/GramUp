@@ -42,7 +42,7 @@ def get_uploaded_files(tg_client, chat_id, parents):
         if caption:
             for (base, full) in table:
                 if caption.startswith(base):
-                    files.add(caption.replace(base, full, 1))
+                    files.add((caption.replace(base, str(full), 1)))
                     break
 
     return files

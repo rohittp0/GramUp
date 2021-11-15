@@ -15,18 +15,21 @@
     You should have received a copy of the GNU Affero General Public License
     along with this program.  If not, see https://www.gnu.org/licenses/
 """
-
-import sys
+import os
 import pickle
+import sys
 from shutil import rmtree
+
 from enquiries import choose, confirm
 
 try:
-    from gramup.constants import CACHE_DIR, DATA_FILE, GRAMUP_DIR
+    from gramup.constants import CACHE_DIR, DATA_FILE, GRAMUP_DIR,GRAM_IGNORE
     from gramup.utils import get_logger, get_folders
+    from gramup.login import get_chat_id
 except ModuleNotFoundError:
-    from constants import CACHE_DIR, DATA_FILE, GRAMUP_DIR
+    from constants import CACHE_DIR, DATA_FILE, GRAMUP_DIR,GRAM_IGNORE
     from utils import get_logger, get_folders
+    from login import get_chat_id
 
 
 def clear_cache(_):
@@ -63,7 +66,7 @@ def change_folder(_):
         file_log.warning("No backup folders to change")
         db_dict = {}
 
-    if not confirm(f"Currently {','.join(db_dict['back_up_folders'])} are backedup.Do you want to change this?"):
+    if not confirm(f"Currently {','.join(db_dict['back_up_folders'])} are backed-up. Do you want to change this?"):
         return
 
     db_dict["back_up_folders"] = get_folders()
@@ -73,10 +76,9 @@ def change_folder(_):
 
     file_log.info("Backup Folders changed.")
     input("Backup Folders changed. Press any enter to continue.")
-    sys.exit(0)
 
 
-def change_chat(_):
+def change_chat(tg_client):
     """
         This function allows user to change backup folder.
     """
@@ -90,18 +92,13 @@ def change_chat(_):
     except FileNotFoundError:
         file_log.warning("No backup folders to change")
         db_dict = {}
-
-    if not confirm(f"Currently {','.join(db_dict['back_up_folders'])} are backedup.Do you want to change this?"):
+    if not confirm("If you change chat you will not be able to access previously backed-up files without changing back."
+                   "Are you sure you want to change?"):
         return
 
-    db_dict["back_up_folders"] = get_folders()
+    get_chat_id(tg_client, db_dict["phone_number"], db_dict["back_up_folders"])
 
-    with open(DATA_FILE, "wb") as db_file:
-        pickle.dump(db_dict, db_file)
-
-    file_log.info("Backup Folders changed.")
-    input("Backup Folders changed. Press any enter to continue.")
-    sys.exit(0)
+    input("backup chat changed. Press any enter to continue.")
 
 
 def logout(tg_client):
@@ -132,13 +129,17 @@ def logout(tg_client):
     sys.exit(0)
 
 
+def gramignore(_):
+    os.system(f"editor {GRAM_IGNORE}")
+
+
 def settings(tg_client):
     """
         This function displays the settings menu.
     """
 
-    options = ["Clear Cache", "Change Backup Folder", "Logout", "Go-Back"]
-    functions = [clear_cache, change_folder, logout]
+    options = ["Clear Cache", "Change Backup Folder", 'Change Backup chat', 'Gram-ignore', "Logout", "Go-Back", ]
+    functions = [clear_cache, change_folder, change_chat,gramignore, logout, ]
 
     try:
         while True:
