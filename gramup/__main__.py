@@ -77,7 +77,7 @@ def main():
     """
         This function is called to start GramUp.
     """
-    login(client_ready)
+    client_ready(login())
 
 
 if __name__ == "__main__":

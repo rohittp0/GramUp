@@ -76,6 +76,34 @@ def change_folder(_):
     sys.exit(0)
 
 
+def change_chat(_):
+    """
+        This function allows user to change backup folder.
+    """
+
+    file_log = get_logger()
+
+    try:
+        with open(DATA_FILE, "rb") as db_file:
+            db_dict = pickle.load(db_file)
+
+    except FileNotFoundError:
+        file_log.warning("No backup folders to change")
+        db_dict = {}
+
+    if not confirm(f"Currently {','.join(db_dict['back_up_folders'])} are backedup.Do you want to change this?"):
+        return
+
+    db_dict["back_up_folders"] = get_folders()
+
+    with open(DATA_FILE, "wb") as db_file:
+        pickle.dump(db_dict, db_file)
+
+    file_log.info("Backup Folders changed.")
+    input("Backup Folders changed. Press any enter to continue.")
+    sys.exit(0)
+
+
 def logout(tg_client):
     """
         This function logs the user out.
@@ -99,8 +127,8 @@ def logout(tg_client):
     except FileNotFoundError:
         file_log.warning("Cache already cleared")
 
-    file_log.info("Loged out")
-    input("Loged out. Press enter to continue.")
+    file_log.info("Logged out")
+    input("Logged out. Press enter to continue.")
     sys.exit(0)
 
 
