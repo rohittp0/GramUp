@@ -19,6 +19,8 @@
 import pickle
 import os
 import sys
+import threading
+
 from telegram.client import Telegram
 from enquiries import freetext
 
@@ -63,7 +65,60 @@ def load_data():
         return ph_no, chat_id, bup_folders
 
 
-def login(call_back):
+def try_login_with_code(tg_client, max_tries=5, tries=0):
+    try:
+        tg_client.login()
+    except RuntimeError as r_er:
+        if "PHONE_NUMBER_INVALID" in str(r_er):
+            print("Invalid Phone number")
+        elif tries < max_tries:
+            print("Incorrect code or password. Try again")
+            return try_login_with_code(tg_client, max_tries, tries + 1)
+
+        if os.path.exists(DATA_FILE):
+            os.remove(DATA_FILE)
+            sys.exit(0)
+
+
+def get_chat_id(tg_client, ph_no, bup_folders):
+    def message_handler(update):
+        if update['message']['content'].get('text', {}).get('text', '').lower() != 'use this chat':
+            return
+
+        with open(DATA_FILE, "wb") as db_file:
+            pickle.dump(
+                {
+                    "phone_number": ph_no,
+                    "chat_id": update['message']['chat_id'],
+                    "back_up_folders": bup_folders
+                },
+                db_file
+            )
+
+        tg_client.send_message(
+            chat_id=update['message']['chat_id'],
+            text='Chat selected for backup.'
+        )
+
+        done.set()
+
+    done = threading.Event()
+    tg_client.add_message_handler(message_handler)
+
+    print("Send 'use this chat' to the chat you want to use for backup (case insensitive)")
+    done.wait()
+
+    try:
+        with open(DATA_FILE, "rb") as new_db_file:
+            db_dict = pickle.load(new_db_file)
+
+    except FileNotFoundError:
+        db_dict = {}
+
+    return db_dict["chat_id"]
+
+
+def login():
     """
         This function creates and authenticates Telegram client
         and calls the call_back with Telegram client, phone no
@@ -93,44 +148,11 @@ def login(call_back):
 
     if chat_id is None:
         print("A code has been sent to you via telegram.")
-    for _ in range(5):
-        try:
-            tg_client.login()
-            break
-        except RuntimeError as r_er:
-            if "PHONE_NUMBER_INVALID" in str(r_er):
-                print("Invalid Phone number")
-                if os.path.exists(DATA_FILE):
-                    os.remove(DATA_FILE)
-                    sys.exit(0)
 
-            print("Incorrect code or password. Try again")
+    try_login_with_code(tg_client)
 
     if chat_id is None:
-        def message_handler(update):
-
-            if update['message']['content'].get('text', {}).get('text', '').lower() != 'use this chat':
-                return
-
-            with open(DATA_FILE, "wb") as dbfile:
-                pickle.dump(
-                    {
-                        "phone_number": ph_no,
-                        "chat_id": update['message']['chat_id'],
-                        "back_up_folders": bup_folders
-                    },
-                    dbfile
-                )
-            tg_client.send_message(
-                chat_id=update['message']['chat_id'],
-                text='Chat selected for backup.'
-            )
-
-            call_back(tg_client, update['message']['chat_id'], bup_folders)
-
-        tg_client.add_message_handler(message_handler)
-        print("Send 'use this chat' to the chat you wan't to use for backup (case insensitive)")
-        tg_client.idle()  # blocking waiting for CTRL+C
+        chat_id = get_chat_id(tg_client, ph_no, bup_folders)
 
     tg_client.get_chats().wait()
-    call_back(tg_client, chat_id, bup_folders)
+    return tg_client, chat_id, bup_folders

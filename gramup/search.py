@@ -85,29 +85,7 @@ def delete_files(tg_client, chat_id, files):
     return True
 
 
-def search(tg_client, chat_id):
-    """
-        This function searches for uploaded file using the
-        RegEx provide by the user.
-    """
-
-    search_reg = freetext("Enter the file path to search for ( RegEx supported )")
-    print("Searching...")
-    files = []
-
-    try:
-        for (msg_id, file_id, caption) in get_messages(tg_client, chat_id):
-            if re_search(search_reg, caption):
-                files.append((msg_id, file_id, caption))
-                print(f"{len(files)}){caption}")
-    except re_error as re_er:
-        get_logger().warning("Error searching %s", re_er)
-
-    print()
-
-    if len(files) == 0:
-        return freetext("No files matched your search")
-
+def use_files(files, tg_client, chat_id):
     options = ["View", "Delete", "Go Back"]
     functions = [show_file, delete_files]
 
@@ -130,4 +108,79 @@ def search(tg_client, chat_id):
             get_logger().warning("Error reading index %s", v_er)
             print(f"Please enter number between 1 and {len(files)}")
 
-    return None
+
+def search(tg_client, chat_id, _):
+    """
+        This function searches for uploaded file using the
+        RegEx provide by the user.
+    """
+
+    search_reg = freetext("Enter the file path to browse for ( RegEx supported )")
+    print("Searching...")
+    files = []
+
+    try:
+        for (msg_id, file_id, caption) in get_messages(tg_client, chat_id):
+            if re_search(search_reg, caption):
+                files.append((msg_id, file_id, caption))
+                print(f"{len(files)}){caption}")
+    except re_error as re_er:
+        get_logger().warning("Error searching %s", re_er)
+
+    print()
+
+    if len(files) == 0:
+        return freetext("No files matched your browse")
+
+    use_files(files, tg_client, chat_id)
+
+
+def explore(tg_client, chat_id, folders, files=None, previous=None, c_path=""):
+    """
+        This function shows a file explorer, getting files from cloud.
+    """
+
+    files = files or []
+    file_names = [file[2].split("/")[-1] for file in files]
+
+    options = ["⬅"]
+    options.extend([*folders, *file_names])
+
+    choice = choose("File Explorer", options)
+
+    if choice == "⬅":
+        if not previous:
+            return
+        explore(tg_client, chat_id, previous["folders"], previous["files"], previous["previous"])
+    elif choice in folders:
+        previous = {"folders": folders, "files": files, "previous": previous}
+        c_path = f"{c_path}{choice}/"
+        new_folders, new_files = set([]), set([])
+
+        for (msg_id, file_id, caption) in get_messages(tg_client, chat_id):
+            if str(caption).startswith(c_path):
+                name = str(caption[len(c_path):])
+                if "/" in name:
+                    new_folders.add(name.split("/", 1)[0])
+                else:
+                    new_files.add((msg_id, file_id, caption))
+
+        explore(tg_client, chat_id, new_folders, list(new_files), previous, c_path)
+
+    else:
+        use_files([files[file_names.index(choice)]], tg_client, chat_id)
+
+
+def browse(tg_client, chat_id, bup_folders):
+    """
+        This function displays option to search or explore files.
+    """
+
+    options = ["Search", "File Explorer", "Go-Back"]
+    functions = [search, explore]
+    bup_folders = [folder.split("/")[-1] for folder in bup_folders]
+    try:
+        while True:
+            functions[options.index(choose("What do you want to do?", options))](tg_client, chat_id, bup_folders)
+    except IndexError:
+        pass
