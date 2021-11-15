@@ -221,3 +221,30 @@ def print_progress_bar(iteration, total, prefix='', suffix='', fill='█'):
     # Print New Line on Complete
     if iteration == total:
         print()
+
+
+def long_choice(prompt, options, multi=False):
+    up, down = "⬆", "⬇"
+    _, rows = get_terminal_size(fallback=(100, 1))
+
+    if rows > len(options) - 4:
+        return choose(prompt, options, multi)
+
+    options_chunks = []
+    chunk_index = 0
+
+    for i in range(0, len(options), rows - 4):
+        if i != 0:
+            options_chunks.append([up, *options[i:min(i + rows - 4, len(options))], down])
+        else:
+            options_chunks.append([*options[i:min(i + rows - 4, len(options))], down])
+
+    while True:
+        choice = choose(prompt, options_chunks[chunk_index], multi)
+
+        if choice == up:
+            chunk_index = (chunk_index - 1) % len(options_chunks)
+        elif choice == down:
+            chunk_index = (chunk_index + 1) % len(options_chunks)
+        else:
+            return choice
