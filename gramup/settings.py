@@ -92,8 +92,10 @@ def change_chat(tg_client):
     except FileNotFoundError:
         file_log.warning("No backup folders to change")
         db_dict = {}
-    # if not confirm(f"Currently {f"{db_dict['chat_id'])} are selected to backup .Do you want to change this?""):
-    #     return
+    if not confirm(
+            "if you change the chat your have to again set the old chat for getting files in that chat."
+            " would you lke to change the folder ? "):
+        return
 
     ret = get_chat_id(tg_client, db_dict["phone_number"], db_dict["back_up_folders"])
     file_log.info(f'{ret = }')
@@ -134,8 +136,8 @@ def settings(tg_client):
         This function displays the settings menu.
     """
 
-    options = ["Clear Cache", "Change Backup Folder", "Logout", 'change back up chat',"Go-Back", ]
-    functions = [clear_cache, change_folder, logout, change_chat]
+    options = ["Clear Cache", "Change Backup Folder", 'Change Backup chat', "Logout", "Go-Back", ]
+    functions = [clear_cache, change_folder, change_chat, logout, ]
 
     try:
         while True:
