@@ -66,7 +66,7 @@ def change_folder(_):
         file_log.warning("No backup folders to change")
         db_dict = {}
 
-    if not confirm(f"Currently {','.join(db_dict['back_up_folders'])} are backedup.Do you want to change this?"):
+    if not confirm(f"Currently {','.join(db_dict['back_up_folders'])} are backed-up. Do you want to change this?"):
         return
 
     db_dict["back_up_folders"] = get_folders()
@@ -92,9 +92,8 @@ def change_chat(tg_client):
     except FileNotFoundError:
         file_log.warning("No backup folders to change")
         db_dict = {}
-    if not confirm(
-            "if you change the chat your have to again set the old chat for getting files in that chat."
-            " would you lke to change the folder ? "):
+    if not confirm("If you change chat you will not be able to access previously backed-up files without changing back."
+                   "Are you sure you want to change?"):
         return
 
     ret = get_chat_id(tg_client, db_dict["phone_number"], db_dict["back_up_folders"])
