@@ -25,9 +25,9 @@ from os.path import join, basename
 from enquiries import choose, freetext
 
 try:
-    from gramup.utils import download_file, get_file_id, get_logger, get_messages
+    from gramup.utils import download_file, get_file_id, get_logger, get_messages, long_choice
 except ModuleNotFoundError:
-    from utils import download_file, get_file_id, get_logger, get_messages
+    from utils import download_file, get_file_id, get_logger, get_messages, long_choice
 
 
 def show_file(tg_client, chat_id, files):
@@ -95,13 +95,7 @@ def use_files(files, tg_client, chat_id):
             if chose == options[2]:
                 break
 
-            if len(files) == 1:
-                selected = files
-            else:
-                indexes = freetext("Enter indexes of files seperated by ',' or A to select all").split(",")
-                selected = files if indexes[0].lower() == "a" else {files[int(i.strip()) - 1] for i in indexes}
-
-            if functions[options.index(chose)](tg_client, chat_id, selected):
+            if functions[options.index(chose)](tg_client, chat_id, files):
                 break
 
         except (ValueError, IndexError) as v_er:
@@ -118,21 +112,25 @@ def search(tg_client, chat_id, _):
     search_reg = freetext("Enter the file path to browse for ( RegEx supported )")
     print("Searching...")
     files = []
+    file_names = ["Select All"]
 
     try:
         for (msg_id, file_id, caption) in get_messages(tg_client, chat_id):
             if re_search(search_reg, caption):
                 files.append((msg_id, file_id, caption))
-                print(f"{len(files)}){caption}")
+                file_names.append(caption)
     except re_error as re_er:
         get_logger().warning("Error searching %s", re_er)
-
-    print()
 
     if len(files) == 0:
         return freetext("No files matched your browse")
 
-    use_files(files, tg_client, chat_id)
+    choice = long_choice("Select files", file_names, False)
+
+    if file_names[0] == choice:
+        use_files(files, tg_client, chat_id)
+    else:
+        use_files(files[file_names.index(choice)], tg_client, chat_id)
 
 
 def explore(tg_client, chat_id, folders, files=None, previous=None, c_path=""):
@@ -146,7 +144,7 @@ def explore(tg_client, chat_id, folders, files=None, previous=None, c_path=""):
     options = ["⬅"]
     options.extend([*folders, *file_names])
 
-    choice = choose("File Explorer", options)
+    choice = long_choice("File Explorer", options)
 
     if choice == "⬅":
         if not previous:

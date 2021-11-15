@@ -156,6 +156,6 @@ def login():
 
         if confirm("Do you want to load previously backed-up file list?"):
             print("Getting file list, this might take some time...")
-            tg_client.get_chats()
+            tg_client.get_chats().wait()
 
     return tg_client, chat_id, bup_folders
