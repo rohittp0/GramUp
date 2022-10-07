@@ -129,7 +129,10 @@ def logout(tg_client):
     sys.exit(0)
 
 
-def gramignore(_):
+def gram_ignore(_):
+    """
+        Opens gram ignore in default text editor.
+    """
     os.system(f"editor {GRAM_IGNORE}")
 
 
@@ -139,7 +142,7 @@ def settings(tg_client):
     """
 
     options = ["Clear Cache", "Change Backup Folder", 'Change Backup chat', 'Gram-ignore', "Logout", "Go-Back", ]
-    functions = [clear_cache, change_folder, change_chat,gramignore, logout, ]
+    functions = [clear_cache, change_folder, change_chat, gram_ignore, logout, ]
 
     try:
         while True:
