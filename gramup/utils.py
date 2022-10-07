@@ -208,12 +208,12 @@ def print_progress_bar(iteration, total, prefix='', suffix='', fill='█'):
     """
 
     percent = ("{0:." + str(1) + "f}").format(100 * (iteration / float(total)))
-    styling = '%s |%s| %s%% %s' % (prefix, fill, percent, suffix)
+    styling = f'{prefix} |{fill}| {percent}% {suffix}'
     cols, _ = get_terminal_size(fallback=(100, 1))
     length = cols - len(styling)
     filled_length = int(length * iteration // total)
     p_bar = fill * filled_length + '-' * (length - filled_length)
-    print('\r%s' % styling.replace(fill, p_bar), end='\r')
+    print(f'\r{styling.replace(fill, p_bar)}', end='\r')
     # Print New Line on Complete
     if iteration == total:
         print()
