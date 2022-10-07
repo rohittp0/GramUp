@@ -35,7 +35,7 @@ setup(
     description="A utility to use Telegram as a backup solution.",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/rohittp0/GramUp",
+    url="https://rohittp.com/GramUp",
     packages=[PACKAGE_NAME],
     classifiers=[
         "Programming Language :: Python :: 3",
