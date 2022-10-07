@@ -19,12 +19,22 @@ import sys
 
 from enquiries import choose
 
-from gramup.backup import backup
-from gramup.login import login
-from gramup.restore import restore
-from gramup.search import search
-from gramup.settings import settings
-from gramup.utils import get_logger, print_banner
+try:
+    from gramup.backup import backup
+    from gramup.login import login
+    from gramup.restore import restore
+    from gramup.search import browse
+    from gramup.settings import settings
+    from gramup.help import gramupHelp
+    from gramup.utils import get_logger, print_banner
+except ModuleNotFoundError:
+    from backup import backup
+    from login import login
+    from restore import restore
+    from search import browse
+    from settings import settings
+    from help import gramupHelp
+    from utils import get_logger, print_banner
 
 
 def client_ready(tg_client, chat_id, bup_folders):
@@ -39,7 +49,7 @@ def client_ready(tg_client, chat_id, bup_folders):
 
     file_log.info("Client ready.")
 
-    options = ["Backup", "Restore", "Search", "Settings", "Quit"]
+    options = ["Backup", "Restore", "Browse", "Settings", "Help", "Quit"]
 
     try:
         while True:
@@ -51,9 +61,11 @@ def client_ready(tg_client, chat_id, bup_folders):
             elif choice == options[1]:
                 restore(tg_client, chat_id)
             elif choice == options[2]:
-                search(tg_client, chat_id)
+                browse(tg_client, chat_id, bup_folders)
             elif choice == options[3]:
                 settings(tg_client)
+            elif choice == options[4]:
+                gramupHelp()    
             else:
                 break
 
@@ -69,7 +81,8 @@ def main():
     """
         This function is called to start GramUp.
     """
-    login(client_ready)
+    tg_client, chat_id, bup_folders = login()
+    client_ready(tg_client, chat_id, bup_folders)
 
 
 if __name__ == "__main__":

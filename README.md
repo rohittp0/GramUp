@@ -16,7 +16,7 @@
 
 ## What is GramUp?
 
-**GramUp** is a lightweight python program to backup your files. **GramUp** enables you unlimited cloud backup and easy restore functionality and that too for free. With **GramUp,** monthly bills for cloud storage will be a thing of the past. 
+**GramUp** is a lightweight python program to back up your files. **GramUp** enables you unlimited cloud backup and easy restore functionality and that too for free. With **GramUp,** monthly bills for cloud storage will be a thing of the past. 
 
 ##  How does it work?
 
@@ -27,7 +27,7 @@
  - [x]  **Unlimited Storage for Ever**
 	 - Yes forever! That is not until a certain period of time or with a specific cap to the amount of storage you get. It is truly unlimited.
  - [x] **Fully Opensource**
- - [x]  **Works on any OS**
+ - [x]  **Works on any Unix based OS**
      - Anywhere you can run python or install Telegram **GramUp** will be available.
  - [x] **Unlimited Number of Device Support**
 	 - Can run from any number of devices simultaneously ( both backup and restore )
@@ -69,26 +69,24 @@ Run the following commands from a terminal :
     git clone https://github.com/rohittp0/GramUp.git
     cd GramUp
     chmod +x run.sh    
-	./run.sh
-
-To run **GramUp** again open GramuUp/run.sh
+	python gramup/__main__.py
 
 
 ## Usage
 
-### Windows
+### Linux
 
 To start the program run,
 
-     py -m gramup
+     gramup
 
- 1. Then enter your phone number and list of folders you want to backup.
+ 1. Then enter your phone number and list of folders you want to back up.
  2. Now you will receive a code on your phone ( on Telegram ) enter that and press enter. 
  3. Now send "use_this_chat" to the Telegram chat you want to use for backup.
- 4. Enter "b" for backup or "r" for retore.
+ 4. Enter "b" for backup or "r" for restore.
  5. Now you can go out a have some fun while **GramUp** handles your task.
  
-### Linux or MacOS
+### MacOS
  
  The process is the same for you guys too. To start you can either run,
  
@@ -99,7 +97,11 @@ To start the program run,
 
     gramup
 
-   The rest is the same as that for Windows
+   The rest is the same as that for Linux
+
+### Windows
+
+GramUp is not natively available for Windows since windows doesn't support fcntl, but GramUp requires it to work. If you are on Windows you can use [GramUp-Web](https://github.com/rohittp0/Gramup-Web) a web app implementation of GramUp. GramUp-Web is currently under development and may take some time to become production ready. 
 
 ### Adroid/iOS
 

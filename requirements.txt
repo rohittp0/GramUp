@@ -1,5 +1,7 @@
-speedtest-cli
-python-telegram
-enquiries~=0.1.0
-
-setuptools~=57.0.0
+blessings==1.7
+curtsies==0.3.10
+cwcwidth==0.1.5
+enquiries==0.1.0
+python-telegram==0.14.0
+six==1.16.0
+speedtest-cli==2.1.3
