@@ -86,6 +86,9 @@ def delete_files(tg_client, chat_id, files):
 
 
 def use_files(files, tg_client, chat_id):
+    """
+        This function handles the submenu for viewing / deleting files.
+    """
     options = ["View", "Delete", "Go Back"]
     functions = [show_file, delete_files]
 
@@ -123,7 +126,8 @@ def search(tg_client, chat_id, _):
         get_logger().warning("Error searching %s", re_er)
 
     if len(files) == 0:
-        return freetext("No files matched your browse")
+        freetext("No files matched your browse")
+        return
 
     choice = long_choice("Select files", file_names, False)
 
@@ -133,11 +137,29 @@ def search(tg_client, chat_id, _):
         use_files(files[file_names.index(choice)], tg_client, chat_id)
 
 
-def explore(tg_client, chat_id, folders, files=None, previous=None, c_path=""):
+def get_explore_options(tg_client, chat_id, c_path):
+    """
+        This is a helper function for explore to get all folders and
+        files inside a given folder specified by c_path.
+    """
+    new_folders, new_files = set([]), set([])
+
+    for (msg_id, file_id, caption) in get_messages(tg_client, chat_id):
+        if str(caption).startswith(c_path):
+            name = str(caption[len(c_path):])
+            if "/" in name:
+                new_folders.add(name.split("/", 1)[0])
+            else:
+                new_files.add((msg_id, file_id, caption))
+
+    return new_folders, new_files
+
+
+def explore(tg_config, folders, files=None, previous=None, c_path=""):
     """
         This function shows a file explorer, getting files from cloud.
     """
-
+    tg_client, chat_id = tg_config
     files = files or []
     file_names = [file[2].split("/")[-1] for file in files]
 
@@ -149,21 +171,13 @@ def explore(tg_client, chat_id, folders, files=None, previous=None, c_path=""):
     if choice == "⬅":
         if not previous:
             return
-        explore(tg_client, chat_id, previous["folders"], previous["files"], previous["previous"])
+        explore((tg_client, chat_id), previous["folders"], previous["files"], previous["previous"])
     elif choice in folders:
         previous = {"folders": folders, "files": files, "previous": previous}
         c_path = f"{c_path}{choice}/"
-        new_folders, new_files = set([]), set([])
+        new_folders, new_files = get_explore_options(tg_client, chat_id, c_path)
 
-        for (msg_id, file_id, caption) in get_messages(tg_client, chat_id):
-            if str(caption).startswith(c_path):
-                name = str(caption[len(c_path):])
-                if "/" in name:
-                    new_folders.add(name.split("/", 1)[0])
-                else:
-                    new_files.add((msg_id, file_id, caption))
-
-        explore(tg_client, chat_id, new_folders, list(new_files), previous, c_path)
+        explore((tg_client, chat_id), new_folders, list(new_files), previous, c_path)
 
     else:
         use_files([files[file_names.index(choice)]], tg_client, chat_id)

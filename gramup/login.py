@@ -66,6 +66,10 @@ def load_data():
 
 
 def try_login_with_code(tg_client, max_tries=5, tries=0):
+    """
+        This function tries to log in to Telegram using the saved phone number.
+        It asks for the OTP max_tries times before giving up.
+    """
     try:
         tg_client.login()
     except RuntimeError as r_er:
@@ -79,9 +83,21 @@ def try_login_with_code(tg_client, max_tries=5, tries=0):
             os.remove(DATA_FILE)
             sys.exit(0)
 
+    return None
+
 
 def get_chat_id(tg_client, ph_no, bup_folders):
+    """
+        This function prompts the user to send `use this chat` message to a chat
+        and obtains the chat id of that chat.
+    """
     def message_handler(update):
+        """
+            This is that message handler that is called when a new message is received.
+            It checks if the message contains required keywords and saves the chat id of
+            the chat it received the message from. It also sends an acknowledgement to the
+            same chat as well.
+        """
         if update['message']['content'].get('text', {}).get('text', '').lower() != 'use this chat':
             return
 

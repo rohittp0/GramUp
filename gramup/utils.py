@@ -194,7 +194,7 @@ def get_new_files(root, old_files):
     files = set([])
     grandparent = Path(root).parent
     excludes = []
-    with open(GRAM_IGNORE) as ignore:
+    with open(GRAM_IGNORE, encoding="utf-8") as ignore:
         excludes = [f"!{i}" for i in ignore.readlines()]
     exc = "| ".join(excludes)
     all_files = set(Path(root).rglob(f' ^({exc})'))
@@ -229,7 +229,11 @@ def print_progress_bar(iteration, total, prefix='', suffix='', fill='█'):
 
 
 def long_choice(prompt, options, multi=False):
-    up, down = "⬆", "⬇"
+    """
+        This is a workaround for the bug in `enquires` which cause it to
+        fail with large chose list.
+    """
+    up_arrow, down_arrow = "⬆", "⬇"
     _, rows = get_terminal_size(fallback=(100, 1))
 
     if rows > len(options) - 4:
@@ -240,16 +244,16 @@ def long_choice(prompt, options, multi=False):
 
     for i in range(0, len(options), rows - 4):
         if i != 0:
-            options_chunks.append([up, *options[i:min(i + rows - 4, len(options))], down])
+            options_chunks.append([up_arrow, *options[i:min(i + rows - 4, len(options))], down_arrow])
         else:
-            options_chunks.append([*options[i:min(i + rows - 4, len(options))], down])
+            options_chunks.append([*options[i:min(i + rows - 4, len(options))], down_arrow])
 
     while True:
         choice = choose(prompt, options_chunks[chunk_index], multi)
 
-        if choice == up:
+        if choice == up_arrow:
             chunk_index = (chunk_index - 1) % len(options_chunks)
-        elif choice == down:
+        elif choice == down_arrow:
             chunk_index = (chunk_index + 1) % len(options_chunks)
         else:
             return choice
