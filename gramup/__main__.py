@@ -25,7 +25,6 @@ try:
     from gramup.restore import restore
     from gramup.search import browse
     from gramup.settings import settings
-    from gramup.help import gramupHelp
     from gramup.utils import get_logger, print_banner
 except ModuleNotFoundError:
     from backup import backup
@@ -33,7 +32,6 @@ except ModuleNotFoundError:
     from restore import restore
     from search import browse
     from settings import settings
-    from help import gramupHelp
     from utils import get_logger, print_banner
 
 
@@ -49,7 +47,7 @@ def client_ready(tg_client, chat_id, bup_folders):
 
     file_log.info("Client ready.")
 
-    options = ["Backup", "Restore", "Browse", "Settings", "Help", "Quit"]
+    options = ["Backup", "Restore", "Browse", "Settings", "Quit"]
 
     try:
         while True:
@@ -64,8 +62,6 @@ def client_ready(tg_client, chat_id, bup_folders):
                 browse(tg_client, chat_id, bup_folders)
             elif choice == options[3]:
                 settings(tg_client)
-            elif choice == options[4]:
-                gramupHelp()    
             else:
                 break
 
