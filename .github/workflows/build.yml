@@ -61,7 +61,7 @@ jobs:
         env:
           OS_FILENAME: '${{ runner.os }}-app'    
         run: |
-          ./build.sh ${OS_FILENAME}
+          bash ./build.sh ${OS_FILENAME}
           touch ${OS_FILENAME}.count
         shell: bash
         
