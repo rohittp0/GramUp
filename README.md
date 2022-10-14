@@ -14,11 +14,11 @@
   6. [Questions and Feedback](#questions-and-feedback)
 	    * [Contact Me](#contact-me)
 
-## What is GramUp?
+## What is GramUp??
 
 **GramUp** is a lightweight python program to back up your files. **GramUp** enables you unlimited cloud backup and easy restore functionality and that too for free. With **GramUp,** monthly bills for cloud storage will be a thing of the past. 
 
-##  How does it work?
+##  How does it work????
 
 **GramUp** uses Telegram's unlimited cloud storage for backup. All your files are stored on Telegram servers and secured by their encryption. You can select a chat ( usually saved messages ) to use and **GramUp** will send all files to that chat and later at an event of restoration download files from there. Since both Telegram and **GramUp** are opensource you don't have to worry about someday suddenly you having to pay for your storage.
 
@@ -115,6 +115,8 @@ Files backed up by **GramUp** can be accessed using the UnLim app on Android. [U
 If you are facing any problem feel free to open an issue or mail me a stack overflow question with  `gramup`  as the tag. All pull requests are always welcome. If you want to know how GramUp works checkout this [map](https://app.codesee.io/maps/public/82cdf100-2de8-11ec-80d0-7d2f654f857e)
 
 ### Contact Me
+
+Rohit TP
 
 **Mail me @**  [tprohit9@gmail.com](mailto:tprohit9@gmail.com)
 
