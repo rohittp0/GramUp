@@ -33,6 +33,9 @@ import speedtest
 
 try:
     from gramup.utils import get_messages, get_logger, get_new_files, print_progress_bar
+"""
+Python Utils is a collection of small Python functions and classes which make common patterns shorter and easier
+"""
 except ModuleNotFoundError:
     from utils import get_messages, get_logger, get_new_files, print_progress_bar
 
