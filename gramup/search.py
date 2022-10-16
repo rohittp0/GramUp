@@ -155,11 +155,10 @@ def get_explore_options(tg_client, chat_id, c_path):
     return new_folders, new_files
 
 
-def explore(tg_config, folders, files=None, previous=None, c_path=""):
+def explore(tg_client, chat_id, folders, files=None, previous=None, c_path=""):
     """
         This function shows a file explorer, getting files from cloud.
     """
-    tg_client, chat_id = tg_config
     files = files or []
     file_names = [file[2].split("/")[-1] for file in files]
 
@@ -171,13 +170,13 @@ def explore(tg_config, folders, files=None, previous=None, c_path=""):
     if choice == "⬅":
         if not previous:
             return
-        explore((tg_client, chat_id), previous["folders"], previous["files"], previous["previous"])
+        explore(tg_client, chat_id, previous["folders"], previous["files"], previous["previous"])
     elif choice in folders:
         previous = {"folders": folders, "files": files, "previous": previous}
         c_path = f"{c_path}{choice}/"
         new_folders, new_files = get_explore_options(tg_client, chat_id, c_path)
 
-        explore((tg_client, chat_id), new_folders, list(new_files), previous, c_path)
+        explore(tg_client, chat_id, new_folders, list(new_files), previous, c_path)
 
     else:
         use_files([files[file_names.index(choice)]], tg_client, chat_id)
