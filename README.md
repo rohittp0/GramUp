@@ -118,9 +118,9 @@ If you are facing any problem feel free to open an issue or mail me a stack over
 
 ### Contact Me
 
-**Mail me @**  [tprohit9@gmail.com](mailto:tprohit9@gmail.com)
+**<img src="./envelope-solid.svg" width=18 alt="Logo">  Mail me @**  [tprohit9@gmail.com](mailto:tprohit9@gmail.com)
 
-**Catch me on**  [Stackoverflow](https://stackoverflow.com/users/10182024/rohi)
+**<img src="./stack-overflow.svg" width=18 alt="Logo">  Catch me on**  [Stackoverflow](https://stackoverflow.com/users/10182024/rohi)
 
 **<img src="./youtube.svg" width=18 alt="Logo">  Check out my YouTube**  [Channel](https://www.youtube.com/channel/UCVRdZwluF8jYXSIaHBqK73w)
 
