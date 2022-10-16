@@ -118,13 +118,13 @@ If you are facing any problem feel free to open an issue or mail me a stack over
 
 ### Contact Me
 
-**<img src="./envelope-solid.svg" width=18 alt="Logo">  Mail me @**  [tprohit9@gmail.com](mailto:tprohit9@gmail.com)
+**<img src="./icons/envelope-solid.svg" width=18 alt="Logo">  Mail me @**  [tprohit9@gmail.com](mailto:tprohit9@gmail.com)
 
-**<img src="./stack-overflow.svg" width=18 alt="Logo">  Catch me on**  [Stackoverflow](https://stackoverflow.com/users/10182024/rohi)
+**<img src="./icons/stack-overflow.svg" width=18 alt="Logo">  Catch me on**  [Stackoverflow](https://stackoverflow.com/users/10182024/rohi)
 
-**<img src="./youtube.svg" width=18 alt="Logo">  Check out my YouTube**  [Channel](https://www.youtube.com/channel/UCVRdZwluF8jYXSIaHBqK73w)
+**<img src="./icons/youtube.svg" width=18 alt="Logo">  Check out my YouTube**  [Channel](https://www.youtube.com/channel/UCVRdZwluF8jYXSIaHBqK73w)
 
-**<img src="./instagram.svg" width=18 alt="Logo">  Follow me on**  [Instagram](https://www.instagram.com/rohit_pnr/)
+**<img src="./icons/instagram.svg" width=18 alt="Logo">  Follow me on**  [Instagram](https://www.instagram.com/rohit_pnr/)
 
      
 
