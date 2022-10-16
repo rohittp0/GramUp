@@ -103,7 +103,7 @@ To start the program run,
 
 GramUp is not natively available for Windows since windows doesn't support fcntl, but GramUp requires it to work. If you are on Windows you can use [GramUp-Web](https://github.com/rohittp0/Gramup-Web) a web app implementation of GramUp. GramUp-Web is currently under development and may take some time to become production ready. 
 
-### Adroid/iOS
+### Android/iOS
 
  Currently **GramUp** doesn't support automatic backup and restore on Android/iOS. You could backup files manually by sending them to the chat you selected for backup ( must be sent as document ) with the path to where you want it restored as the caption.
 
