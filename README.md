@@ -1,4 +1,6 @@
-                                             <img src="./GramUp%20Icon.png" width=300 alt="Logo">
+<p align="center">
+	<img src="./GramUp%20Icon.png" width=300 alt="Logo">
+</p>
 
 # GramUp
 
