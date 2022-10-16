@@ -124,7 +124,7 @@ If you are facing any problem feel free to open an issue or mail me a stack over
 
 **Check out my YouTube**  [Channel](https://www.youtube.com/channel/UCVRdZwluF8jYXSIaHBqK73w)
 
-**Follow me on**  [Instagram](https://www.instagram.com/rohit_pnr/)
+**<img src="./instagram.svg" width=18 alt="Logo">  Follow me on**  [Instagram](https://www.instagram.com/rohit_pnr/)
 
      
 
