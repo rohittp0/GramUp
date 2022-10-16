@@ -1,26 +1,34 @@
-"""
-    This is a utility to use Telegram's unlimited storage for backup.
-    Copyright (C) 2021  Rohit T P
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU Affero General Public License as published
-    by the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU Affero General Public License for more details.
-
-    You should have received a copy of the GNU Affero General Public License
-    along with this program.  If not, see https://www.gnu.org/licenses/
-"""
 
 from multiprocessing.pool import ThreadPool
+"""
+     With the help of concurrent. futures module and its concrete subclass Executor, we can easily create a pool of threads.
+
+
+"""
 from os.path import relpath, basename
+"""
+    
+relpath() method in Python is used to get a relative filepath to the given path either from the current working directory or from the given directory. 
 from datetime import datetime
+
+"""
+
 from math import ceil
+
+"""
+
+The method ceil(x) in Python returns a ceiling value of x i.e., the smallest integer greater than or equal to x. Syntax: import math math. ceil(x) Parameter: x:This is a numeric expression. Returns: Smallest integer not less than x.
+
+"""
 import time
+
+"""
+
+The time() function returns the number of seconds passed since epoch. 
+
+
+"""
 import speedtest
 
 try:
