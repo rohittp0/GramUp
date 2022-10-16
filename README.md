@@ -122,7 +122,7 @@ If you are facing any problem feel free to open an issue or mail me a stack over
 
 **Catch me on**  [Stackoverflow](https://stackoverflow.com/users/10182024/rohi)
 
-**Check out my YouTube**  [Channel](https://www.youtube.com/channel/UCVRdZwluF8jYXSIaHBqK73w)
+**<img src="./youtube.svg" width=18 alt="Logo">  Check out my YouTube**  [Channel](https://www.youtube.com/channel/UCVRdZwluF8jYXSIaHBqK73w)
 
 **<img src="./instagram.svg" width=18 alt="Logo">  Follow me on**  [Instagram](https://www.instagram.com/rohit_pnr/)
 
