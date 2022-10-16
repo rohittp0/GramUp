@@ -10,7 +10,7 @@
 	    * [Method 2](#method-2)
   5. [Usage](#usage)
 	    * [Windows](#windows)
-	    * [Linux or MacOS](#linux-or-macos)
+	    * [Linux or MacOS](#linux)
   6. [Questions and Feedback](#questions-and-feedback)
 	    * [Contact Me](#contact-me)
 
