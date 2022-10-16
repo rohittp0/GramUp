@@ -194,8 +194,13 @@ def get_new_files(root, old_files):
     files = set([])
     grandparent = Path(root).parent
     excludes = []
-    with open(GRAM_IGNORE, encoding="utf-8") as ignore:
-        excludes = [f"!{i}" for i in ignore.readlines()]
+    try:
+        with open(GRAM_IGNORE, encoding="utf-8") as ignore:
+            excludes = [f"!{i}" for i in ignore.readlines()]
+    except FileNotFoundError:
+        with open(GRAM_IGNORE, "w") as ignore:
+            ignore.write("")
+    
     exc = "| ".join(excludes)
     all_files = set(Path(root).rglob(f' ^({exc})'))
     for path in all_files:
