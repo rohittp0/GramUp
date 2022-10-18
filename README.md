@@ -1,4 +1,6 @@
-<img src="./GramUp%20Icon.png" width=300 alt="Logo">
+<p align="center">
+	<img src="./GramUp%20Icon.png" width=300 alt="Logo">
+</p>
 
 # GramUp
 
@@ -10,7 +12,7 @@
 	    * [Method 2](#method-2)
   5. [Usage](#usage)
 	    * [Windows](#windows)
-	    * [Linux or MacOS](#linux-or-macos)
+	    * [Linux or MacOS](#linux)
   6. [Questions and Feedback](#questions-and-feedback)
 	    * [Contact Me](#contact-me)
 
@@ -103,7 +105,7 @@ To start the program run,
 
 GramUp is not natively available for Windows since windows doesn't support fcntl, but GramUp requires it to work. If you are on Windows you can use [GramUp-Web](https://github.com/rohittp0/Gramup-Web) a web app implementation of GramUp. GramUp-Web is currently under development and may take some time to become production ready. 
 
-### Adroid/iOS
+### Android/iOS
 
  Currently **GramUp** doesn't support automatic backup and restore on Android/iOS. You could backup files manually by sending them to the chat you selected for backup ( must be sent as document ) with the path to where you want it restored as the caption.
 
@@ -116,13 +118,13 @@ If you are facing any problem feel free to open an issue or mail me a stack over
 
 ### Contact Me
 
-**Mail me @**  [tprohit9@gmail.com](mailto:tprohit9@gmail.com)
+**<img src="./icons/envelope-solid.svg" width=18 alt="Logo">  Mail me @**  [tprohit9@gmail.com](mailto:tprohit9@gmail.com)
 
-**Catch me on**  [Stackoverflow](https://stackoverflow.com/users/10182024/rohi)
+**<img src="./icons/stack-overflow.svg" width=18 alt="Logo">  Catch me on**  [Stackoverflow](https://stackoverflow.com/users/10182024/rohi)
 
-**Check out my YouTube**  [Channel](https://www.youtube.com/channel/UCVRdZwluF8jYXSIaHBqK73w)
+**<img src="./icons/youtube.svg" width=18 alt="Logo">  Check out my YouTube**  [Channel](https://www.youtube.com/channel/UCVRdZwluF8jYXSIaHBqK73w)
 
-**Follow me on**  [Instagram](https://www.instagram.com/rohit_pnr/)
+**<img src="./icons/instagram.svg" width=18 alt="Logo">  Follow me on**  [Instagram](https://www.instagram.com/rohit_pnr/)
 
      
 
