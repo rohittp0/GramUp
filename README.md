@@ -109,6 +109,9 @@ GramUp is not natively available for Windows since windows doesn't support fcntl
 
 Files backed up by **GramUp** can be accessed using the UnLim app on Android. [UnLim](https://play.google.com/store/apps/details?id=com.kratosle.unlim&hl=en_IN&gl=US) can also be used to backup files from Android to then be restored using **GramUp**. To make **GramUp** compatible with UnLim just select the "saved messages" chat ( The chat which is used by UnLim ) as the chat for backup. Do check out UnLim's [facebook page](https://www.facebook.com/unlimcloudteam/).
 
+## Contributing
+
+We welcome your contributions to GramUp! To begin, please fork this repository and make any desired changes on the development branch. Note that all pull requests should target the [development](https://github.com/rohittp0/GramUp/tree/dev) branch exclusively. If you are unsure about how to get started, consider looking for a good first issue. However, if you have ideas for changes not currently listed, please open an issue to discuss your proposed changes before beginning any work. Don't forget to reference the corresponding issue when creating a pull request. Thank you for your contributions!
 
 ## Questions and Feedback
 
