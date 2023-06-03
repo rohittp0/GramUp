@@ -36,4 +36,5 @@ MESGS_DIR = join(FILES_DIR, "files")
 DATA_FILE = join(GRAMUP_DIR, "saved")
 CACHE_DIR = join(FILES_DIR, "database")
 LOG_FILE = join(GRAMUP_DIR, "log.txt")
+GRAM_IGNORE = join(GRAMUP_DIR, ".gram_ignore")
 OTHER_FOLDER = "Other"
