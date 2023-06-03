@@ -1,10 +1,10 @@
 name: Build
 
-# Controls when the action will run. 
+# Controls when the action will run.
 on:
   # Triggers the workflow on push events but only for the dev branch
   push:
-    branches: [ dev ]
+    branches: [ dev-cli ]
 
   # To run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -16,7 +16,7 @@ jobs:
     name: Build Gramup on ${{ matrix.os }}
     # The types of runners that the job will run on
     runs-on: ${{ matrix.os }}
-    
+
     strategy:
       matrix:
         os: [ubuntu-20.04, macos-latest]
@@ -25,7 +25,7 @@ jobs:
     steps:
       # Checks-out this repository under $GITHUB_WORKSPACE
       - uses: actions/checkout@v2
-      
+
       # Sets up python 3.8
       - name: Set up Python 3.8
         uses: actions/setup-python@v1
@@ -50,36 +50,36 @@ jobs:
           # Look to see if there is a cache hit for the corresponding requirements file
           key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
 
-      # Installs dependencies needed for build 	
+      # Installs dependencies needed for build
       - name: Install dependencies
         run: |
           pip install pyinstaller
           pip install -r requirements.txt
 
       # Builds the app using pyinstaller
-      - name: Build with pyinstaller 
+      - name: Build with pyinstaller
         env:
-          OS_FILENAME: '${{ runner.os }}-app'    
+          OS_FILENAME: '${{ runner.os }}-app'
         run: |
           bash ./build.sh ${OS_FILENAME}
           touch ${OS_FILENAME}.count
         shell: bash
-        
+
       # Wait for files to be created
       - name: Wait for files
         if: runner.os == 'Linux'
         run: |
-          while [ $(find . -name "*.count" | wc -l) < $OS_COUNT ]; do sleep 1; done 
-        env: 
-          OS_COUNT: ${{ strategy.job-index }}  
-      
-      # Uploads the newly created files for later use	
+          while [ $(find . -name "*.count" | wc -l) < $OS_COUNT ]; do sleep 1; done
+        env:
+          OS_COUNT: ${{ strategy.job-index }}
+
+      # Uploads the newly created files for later use
       - name: Upload Artifacts
         if: runner.os == 'Linux'
         uses: actions/upload-artifact@master
         with:
           name: created_files
-          path: dist  
+          path: dist
 
   commit:
     name: Commit created files
@@ -87,30 +87,30 @@ jobs:
     needs: build
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
-    
+
     steps:
-    # Checks-out this repository under $GITHUB_WORKSPACE	
+    # Checks-out this repository under $GITHUB_WORKSPACE
       - uses: actions/checkout@v2
         with:
           ref: "release"
-      
-      # Downloads previously uploaded files 	
+
+      # Downloads previously uploaded files
       - uses: actions/download-artifact@master
         with:
-          name: created_files 
+          name: created_files
           path: dist
-          
+
       # Configures git
       - name: Setup Git
         run: |
           git config --global user.name 'Rohit T P'
           git config --global user.email 'rohittp0@users.noreply.github.com'
-          
+
       # Adds the downloaded files to repo
       - name: Add
         run: |
           git add dist/*
-      
+
       # Commits and pushes the repo to origin
       - name: Commit
         run: |
