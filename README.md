@@ -1,5 +1,7 @@
 <img src="https://github.com/rohittp0/GramUp/blob/main/GramUp%20Icon.png" width=300 alt="Logo">
 
+> Note:  If you are here for the Gramup CLI it has moved [here](https://github.com/rohittp0/GramUp/tree/cli) 
+
 # GramUp
 
   1. [What is GramUp?](#what-is-gramup)
@@ -47,65 +49,6 @@
 	 - With easy 3 steps guided setup process, it is easier than you can imagine.
  - [x] **Light weight**
 	 -  The whole program is just 35.7 kB I bet this must be the smallest app you have ever installed.
-
-## Installation
-
-**GramUp** currently provides two methods of installation, by using pip or by cloning this repository.
-
-### Method 1
-
-This method always gets you the stable version of **GramUp** and is the recommended method. Install [pip](https://pypi.org/project/pip/) if you don't have it then run :
-
-    pip install gramup --user
-And that is it!
-
-### Method 2 
-
-This method ensures that you get the latest version ( even if it is unstable ).
-The steps shown are for Linux but can be easily replicated on other OS too, just google "cloning GitHub repository from \<your OS\> "
-
-Run the following commands from a terminal :
-
-    git clone https://github.com/rohittp0/GramUp.git
-    cd GramUp
-    chmod +x run.sh    
-	./run.sh
-
-To run **GramUp** again open GramuUp/run.sh
-
-
-## Usage
-
-### Windows
-
-To start the program run,
-
-     py -m gramup
-
- 1. Then enter your phone number and list of folders you want to backup.
- 2. Now you will receive a code on your phone ( on Telegram ) enter that and press enter. 
- 3. Now send "use_this_chat" to the Telegram chat you want to use for backup.
- 4. Enter "b" for backup or "r" for retore.
- 5. Now you can go out a have some fun while **GramUp** handles your task.
- 
-### Linux or MacOS
- 
- The process is the same for you guys too. To start you can either run,
- 
-
-    python -m gramup
- or if you have your PATH configured just run, 
- 
-
-    gramup
-
-   The rest is the same as that for Windows
-
-### Adroid/iOS
-
- Currently **GramUp** doesn't support automatic backup and restore on Android/iOS. You could backup files manually by sending them to the chat you selected for backup ( must be sent as document ) with the path to where you want it restored as the caption.
-
-Files backed up by **GramUp** can be accessed using the UnLim app on Android. [UnLim](https://play.google.com/store/apps/details?id=com.kratosle.unlim&hl=en_IN&gl=US) can also be used to backup files from Android to then be restored using **GramUp**. To make **GramUp** compatible with UnLim just select the "saved messages" chat ( The chat which is used by UnLim ) as the chat for backup. Do check out UnLim's [facebook page](https://www.facebook.com/unlimcloudteam/).
 
 
 ## Questions and Feedback

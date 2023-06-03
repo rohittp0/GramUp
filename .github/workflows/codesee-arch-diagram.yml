@@ -1,7 +1,7 @@
 on:
   push:
     branches:
-      - main
+      - main, cli
   pull_request_target:
     types: [opened, synchronize, reopened]
 
@@ -71,7 +71,7 @@ jobs:
           step: mapUpload
           api_token: ${{ secrets.CODESEE_ARCH_DIAG_API_TOKEN }}
           github_ref: ${{ github.ref }}
-      
+
       - name: Insights
         id: insights
         uses: Codesee-io/codesee-map-action@latest
