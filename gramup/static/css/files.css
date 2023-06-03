@@ -1,0 +1,136 @@
+* {
+    margin: 0;
+    padding: 0;
+
+    font-family: sans-serif;
+}
+
+header {
+    align-items: center;
+    display: flex;
+    background: wheat;
+    position: relative;
+    height: 3.5em;
+}
+
+.button-link {
+    text-decoration: none;
+    font-weight: bolder;
+    margin-left: 1em;
+    color: black;
+}
+
+.content {
+    display: flex;
+    justify-content: space-evenly;
+    flex-wrap: wrap;
+    margin: 4rem 0.5rem;
+}
+
+.content a {
+    margin-bottom: 0.5rem;
+}
+
+.name-tag {
+    text-align: center;
+    text-decoration: none;
+    color: black;
+}
+
+.name-tag p {
+    max-width: 110px;
+    text-overflow: ellipsis;
+    margin: auto;
+    overflow: hidden;
+}
+
+.form-section {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-evenly;
+    background: wheat;
+    padding: 1em;
+    transition: all ease 0.5s;
+}
+
+.form-section .up-arrow {
+    opacity: 0;
+}
+
+.button {
+    outline: 0;
+    font-size: 18px;
+    background-color: #4A6D8B;
+    color: #fff;
+    border: 0;
+    cursor: pointer;
+    height: 30px;
+    width: 150px;
+    box-shadow: 0 2px 0 0 rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+}
+
+.button:hover {
+    border-color: #3b6480;
+}
+
+.error {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2em;
+}
+
+h3 {
+    text-decoration: wavy red underline;
+}
+
+.center {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+
+    translate: -50% -50%;
+}
+
+@media screen and (max-width: 700px) {
+    body {
+        overflow: hidden;
+    }
+
+    .form-section {
+        position: sticky;
+        bottom: 0;
+        translate: 0 calc(100% - 15px);
+    }
+
+    .form-section .up-arrow {
+        opacity: 1;
+        position: absolute;
+        left: 50%;
+        translate: -50% -100%;
+        font-weight: bolder;
+        font-size: 20px;
+        transition: all 1s;
+    }
+
+    .form-section .up-arrow:hover {
+        translate: 0 -100vh;
+    }
+
+    .form-section:hover {
+        translate: 0;
+    }
+
+    .form-section form {
+        display: grid;
+        grid-template-columns: 1.25fr 0.75fr;
+        margin: 1rem 0;
+    }
+
+    .form-section form input {
+        height: 30px;
+        padding: 0 5px;
+    }
+}
