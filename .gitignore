@@ -123,3 +123,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 .idea
+
+gramup/anon.session
+anon.session
+gramup/anon.session-journal
