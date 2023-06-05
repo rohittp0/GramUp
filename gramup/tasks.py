@@ -14,6 +14,7 @@ async def pull_all_to_db(task: Task):
 
     if not await client.is_user_authorized():
         task.status = "failed"
+        task.message = "User not authorized"
         task.save()
         return
 
@@ -22,28 +23,30 @@ async def pull_all_to_db(task: Task):
         caption: str = message.caption
         path = Path(caption if "/" in caption else f"external/{caption}")
 
-        file = File.create(
+        file, _ = File.get_or_create(
             id=m_id,
             path=str(path),
             name=path.name
         )
 
         file.save()
-        first = True
 
         for folder in path.parents:
+            file_new, _ = File.get_or_create(
+                path=str(folder),
+                name=folder.name,
+                folder=True
+            )
+
             folder_new, _ = Folder.get_or_create(
                 path=str(folder),
                 name=folder.name
             )
 
-            if first:
-                first = False
-                folder_new.files.add(file)
-            else:
-                folder_new.sub_folders.add(file)
-
+            folder_new.this = file_new
+            folder_new.files.add(file)
             folder_new.save()
+
             file = folder_new
 
     task.status = "completed"

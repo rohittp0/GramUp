@@ -3,7 +3,6 @@ import glob
 import os
 from typing import List
 
-import shortuuid
 from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
 from starlette import status
 from starlette.middleware.cors import CORSMiddleware
@@ -96,6 +95,7 @@ async def tasks_list():
             "id": task.id,
             "name": task.name,
             "status": task.status,
+            "message": task.message,
             "schedule_time": task.schedule_time
         })
 

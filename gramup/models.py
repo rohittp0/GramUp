@@ -23,7 +23,6 @@ class File(BaseModel):
 
 class Folder(BaseModel):
     this = peewee.ForeignKeyField(File, backref="this_folder", on_delete="CASCADE")
-    sub_folders = peewee.ManyToManyField(File, backref="parent_folder", on_delete="CASCADE")
     files = peewee.ManyToManyField(File, backref="folder", on_delete="CASCADE")
 
 
@@ -31,11 +30,11 @@ class Task(BaseModel):
     name = peewee.CharField(max_length=128)
     status = peewee.CharField(choices=["running", "completed", "failed"], default="running")
     schedule_time = peewee.DateTimeField(default=datetime.now)
+    message = peewee.CharField(max_length=256, null=True)
 
 
-FolderSubFolder = Folder.sub_folders.get_through_model()
 FolderFile = Folder.files.get_through_model()
 
-db.create_tables([File, FolderSubFolder, FolderFile, Folder, Task])
+db.create_tables([File, FolderFile, Folder, Task])
 
 TaskRequest = TypedDict("TaskRequest", {"path": str, "type": Literal["sync", "upload"]})
