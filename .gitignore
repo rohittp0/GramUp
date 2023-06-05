@@ -124,6 +124,7 @@ dmypy.json
 .pyre/
 .idea
 
-gramup/anon.session
-anon.session
+gramup/*.session
+gramup/*.db
+*.session
 gramup/anon.session-journal
