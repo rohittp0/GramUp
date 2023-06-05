@@ -1,3 +1,5 @@
 fastapi==0.96.0
 starlette~=0.27.0
 Telethon~=1.28.5
+
+pydantic~=1.10.8
