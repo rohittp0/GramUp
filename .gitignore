@@ -128,3 +128,4 @@ gramup/*.session
 gramup/*.db
 *.session
 gramup/anon.session-journal
+gramup/database.db-journal

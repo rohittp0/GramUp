@@ -11,7 +11,7 @@ from starlette.websockets import WebSocket
 from telethon import TelegramClient
 
 from constants import API_ID, API_HASH
-from gramup.models import File, Task, TaskRequest
+from gramup.models import File, Task, TaskRequest, Folder
 from gramup.tasks import pull_all_to_db
 
 client = TelegramClient('anon', API_ID, API_HASH)
@@ -53,22 +53,35 @@ async def websocket_endpoint(websocket: WebSocket):
 
 
 @app.get("/api/files/")
-async def files(path="") -> List:
+async def files(path=".") -> List:
     if not client.is_connected() or not await client.is_user_authorized():
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not authorized")
 
-    return []
+    ret = []
+
+    try:
+        for file in Folder.get(this=File.get(path=path.strip())).files:
+            ret.append({
+                "folder": file.folder,
+                "name": file.name,
+                "path": file.path,
+                "id": file.id
+            })
+    except File.DoesNotExist:
+        pass
+
+    return ret
 
 
 @app.get("/api/local_files/")
 async def local_files(path="") -> List:
     return [
-        File(
-            folder=os.path.isdir(file),
-            name=os.path.basename(file),
-            path=file,
-            id=""
-        )
+        {
+            "folder": os.path.isdir(file),
+            "name": os.path.basename(file),
+            "path": file,
+            "id": ""
+        }
         for file in glob.glob(f"{path}/*")
     ]
 
