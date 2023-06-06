@@ -3,8 +3,8 @@ from pathlib import Path
 from telethon import TelegramClient
 from telethon.tl.types import InputMessagesFilterDocument
 
-from gramup.constants import API_ID, API_HASH
-from gramup.models import File, Folder, Task
+from gramup.constants import API_ID, API_HASH, DB_PATH
+from gramup.models import Task
 
 
 async def pull_all_to_db(task: Task):
@@ -19,40 +19,28 @@ async def pull_all_to_db(task: Task):
         return
 
     try:
+        to_write = {}
         async for message in client.iter_messages("me", filter=InputMessagesFilterDocument):
-            m_id = message.id
+            m_id = str(message.id)
             caption: str = message.message
-            path = Path(caption if "/" in caption else f"external/{caption}")
+            path = Path(caption)
+            name = path.name
+            path = path if path.parent != "." else path.joinpath("external")
+            path = str(Path(DB_PATH).joinpath("files", path).with_name("files.txt"))
 
-            file, created = File.get_or_create(
-                id=m_id,
-                path=str(path),
-            )
+            if path not in to_write:
+                to_write[path] = []
 
-            if not created:
-                continue
+            to_write[path].append(" ".join((m_id, name)))
 
-            file.name = path.name
-            file.save()
+        for path, messages in to_write.items():
+            path = Path(path)
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_text("\n".join(messages))
 
-            for folder in path.parents:
-                file_new, created = File.get_or_create(
-                    path=str(folder),
-                    is_folder=True
-                )
-
-                if not created:
-                    break
-
-                folder_new, _ = Folder.get_or_create(this=file_new)
-                file_new.name = folder.name
-                folder_new.files.add(file)
-                folder_new.save()
-
-                file = folder_new
     except Exception as e:
         task.status = "failed"
-        task.message = f"Something went wrong: {e}"
+        task.message += f"Something went wrong: {e}"
         task.save()
         raise e
 

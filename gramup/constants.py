@@ -38,3 +38,4 @@ CACHE_DIR = join(FILES_DIR, "database")
 LOG_FILE = join(GRAMUP_DIR, "log.txt")
 GRAM_IGNORE = join(GRAMUP_DIR, ".gram_ignore")
 OTHER_FOLDER = "Other"
+DB_PATH = "db"

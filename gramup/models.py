@@ -1,41 +1,77 @@
+import json
 from datetime import datetime
-from typing import Literal, TypedDict
+from pathlib import Path
 
-import peewee
 import shortuuid
 
-db = peewee.SqliteDatabase('database.db')
-db.autoconnect = True
+from gramup.constants import DB_PATH
 
 
-class BaseModel(peewee.Model):
-    id = peewee.CharField(primary_key=True, max_length=22, default=lambda: shortuuid.uuid())
+class Task:
+    def __init__(self, name=None, db_path=DB_PATH):
+        self.id = shortuuid.uuid()
+        self.status = "running"
+        self.message = ""
+        self.__name = name
+        self.__schedule_time = datetime.now()
 
-    class Meta:
-        database = db
+        self.db_file = Path(db_path).joinpath(self.__class__.__name__, f"{self.id}")
 
+    def __repr__(self):
+        return f"<Task {self.__name} {self.status}>"
 
-class File(BaseModel):
-    name = peewee.CharField(max_length=128, default=".")
-    path = peewee.CharField(max_length=512, unique=True)
-    is_folder = peewee.BooleanField(default=False)
+    def __str__(self):
+        return self.__repr__()
 
+    def signature(self):
+        return {
+            "id": self.id,
+            "name": self.__name,
+            "status": self.status,
+            "schedule_time": self.__schedule_time.isoformat()
+        }
 
-class Folder(BaseModel):
-    this = peewee.ForeignKeyField(File, backref="this_folder", on_delete="CASCADE")
-    files = peewee.ManyToManyField(File, backref="folder", on_delete="CASCADE")
+    def to_dict(self):
+        return {
+            **self.signature(),
+            "message": self.message,
+        }
 
+    def set_status(self, status):
+        self.status = status
+        self.save()
 
-class Task(BaseModel):
-    name = peewee.CharField(max_length=128)
-    status = peewee.CharField(choices=["running", "completed", "failed"], default="running")
-    schedule_time = peewee.DateTimeField(default=datetime.now)
-    message = peewee.CharField(max_length=256, null=True)
+    def set_message(self, message):
+        self.message = message
+        self.save()
 
+    def load(self, task_id, db_path=DB_PATH):
+        self.id = task_id
+        self.db_file = Path(db_path).joinpath(Task.__name__, self.id)
 
-FolderFile = Folder.files.get_through_model()
+        if not self.db_file.exists():
+            raise FileNotFoundError(f"Task {self.id} not found")
 
-db.connect()
-db.create_tables([File, FolderFile, Folder, Task])
+        data = json.loads(self.db_file.read_text())
 
-TaskRequest = TypedDict("TaskRequest", {"path": str, "type": Literal["sync", "upload"]})
+        self.status = data["status"]
+        self.message = data["message"]
+        self.__name = data["name"]
+        self.__schedule_time = datetime.fromisoformat(data["schedule_time"])
+
+        return self
+
+    def save(self):
+        if not self.db_file.parent.exists():
+            self.db_file.parent.mkdir(parents=True)
+
+        self.db_file.write_text(json.dumps(self.to_dict()))
+
+    @staticmethod
+    def list(db_path=DB_PATH):
+        db_path = Path(db_path).joinpath(Task.__name__)
+
+        if not db_path.exists():
+            db_path.mkdir()
+
+        return [Task().load(task_id.name) for task_id in db_path.iterdir()]

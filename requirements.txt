@@ -3,7 +3,4 @@ starlette~=0.27.0
 Telethon~=1.28.5
 pydantic~=1.10.8
 shortuuid~=1.0.11
-
-peewee~=3.16.2
-
 uvicorn~=0.22.0
