@@ -3,8 +3,7 @@ import glob
 import os
 from typing import List
 
-from fastapi import FastAPI, HTTPException, Request, BackgroundTasks
-from starlette import status
+from fastapi import FastAPI, Request, BackgroundTasks
 from starlette.middleware.cors import CORSMiddleware
 from starlette.staticfiles import StaticFiles
 from starlette.websockets import WebSocket
@@ -52,17 +51,31 @@ async def websocket_endpoint(websocket: WebSocket):
     await websocket.close()
 
 
+@app.get("/api/auth/")
+async def auth(action="check"):
+    if not client.is_connected():
+        await client.connect()
+
+    if action == "check":
+        return {"auth": await client.is_user_authorized()}
+
+    if action == "logout":
+        await client.log_out()
+
+    return {"auth": False}
+
+
 @app.get("/api/files/")
 async def files(path=".") -> List:
-    if not client.is_connected() or not await client.is_user_authorized():
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="User not authorized")
-
     ret = []
 
     try:
-        for file in Folder.get(this=File.get(path=path.strip())).files:
+        this_file = File.get(File.path == path)
+        folder = Folder.get(Folder.this == this_file)
+
+        for file in folder.files:
             ret.append({
-                "folder": file.folder,
+                "folder": file.is_folder,
                 "name": file.name,
                 "path": file.path,
                 "id": file.id
@@ -125,3 +138,9 @@ async def pull_all(background_tasks: BackgroundTasks):
 
 
 app.mount("/", StaticFiles(directory="static"), name="static")
+
+
+if __name__ == "__main__":
+    import uvicorn
+
+    uvicorn.run("main:app", host="localhost", port=8000, reload=True)
