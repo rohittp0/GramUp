@@ -37,12 +37,11 @@ class Task:
             "message": self.message,
         }
 
-    def set_status(self, status):
-        self.status = status
-        self.save()
+    def set(self, *, status=None, message=None):
+        self.status = status or self.status
+        if message is not None:
+            self.message += message
 
-    def set_message(self, message):
-        self.message = message
         self.save()
 
     def load(self, task_id, db_path=DB_PATH):
