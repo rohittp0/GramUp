@@ -74,3 +74,10 @@ class Task:
             db_path.mkdir()
 
         return [Task().load(task_id.name) for task_id in db_path.iterdir()]
+
+    @staticmethod
+    def get_task(task_id: str):
+        task = Task()
+        task.load(task_id)
+
+        return task

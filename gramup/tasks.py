@@ -81,7 +81,22 @@ async def upload(task: Task, source: Path, destination: Path, branch=False):
             caption = str(destination.joinpath(source.name))
             tasks.append(client.send_file("me", str(source), caption=caption, force_document=True))
 
-        await asyncio.gather(*tasks, return_exceptions=True)
+        messages = await asyncio.gather(*tasks, return_exceptions=True)
+
+        for message in messages:
+            m_id = str(message.id)
+            caption: str = message.message
+            path = Path(caption)
+            name = path.name
+            path = str(Path(DB_PATH).joinpath("files", path).with_name("files.txt"))
+
+            if not Path(path).exists():
+                Path(path).parent.mkdir(parents=True, exist_ok=True)
+                Path(path).write_text(f"{m_id}~{name}")
+            else:
+                with open(path, "a") as file:
+                    file.writelines([f"{m_id}~{name}"])
+
     except Exception as e:
         task.set(status="failed", message=f"Something went wrong: {e}")
         return
@@ -90,3 +105,7 @@ async def upload(task: Task, source: Path, destination: Path, branch=False):
         task.set(status="completed")
     else:
         task.set(message=f"Uploaded {source.name}")
+
+
+async def sync():
+    pass

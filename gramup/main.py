@@ -12,7 +12,7 @@ from telethon import TelegramClient
 
 from constants import API_ID, API_HASH, DB_PATH
 from gramup.models import Task
-from gramup.tasks import pull_all_to_db, upload
+from gramup.tasks import pull_all_to_db, upload, sync
 
 client = TelegramClient('anon', API_ID, API_HASH)
 app = FastAPI()
@@ -110,6 +110,11 @@ async def local_files(path="") -> List:
     ]
 
 
+@app.get("/api/download/file/{file_id}")
+async def download_file(file_id: str):
+    return f"Download feature is coming soon. {file_id}"
+
+
 @app.post("/api/tasks/")
 async def tasks(request: Request, background_tasks: BackgroundTasks):
     body = await request.json()
@@ -144,6 +149,11 @@ async def tasks(request: Request, background_tasks: BackgroundTasks):
 @app.get("/api/tasks/")
 async def tasks_list():
     return [task.signature() for task in Task.list()]
+
+
+@app.get("/api/tasks/{task_id}")
+async def task_get(task_id: str):
+    return Task.get_task(task_id).to_dict()
 
 
 @app.get("/api/pull_all/")
